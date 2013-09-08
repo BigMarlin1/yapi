@@ -30,7 +30,7 @@
 			{/if}
 		</td>
 	</tr>
-		<tr class="row_1">
+	<tr class="row_1">
 		<th>Parts we have:</th>
 		<td><a style="text-decoration: none;" href="nzbcontents.php?page=1&chash={$file.chash}&subject={$file.subject|urlencode}&group={$group.id}">{$file.actualparts}</td>
 	</tr>
@@ -38,12 +38,16 @@
 		<th>Max parts possible:</th>
 		<td><a style="text-decoration: none;" href="nzbcontents.php?page=1&chash={$file.chash}&subject={$file.subject|urlencode}&group={$group.id}">{$file.totalparts}</a></td>
 	</tr>
-	<tr class="row_2">
+	<tr class="row_1">
 		<th>Completion:</th>
 		<td>
 			{$completion=($file.actualparts / $file.totalparts) * 100}
 			{if="$completion > 100"} {$completion=100}{/if}
 			{$completion|number_format}%
 		</td>
+	</tr>
+	<tr class="row_2">
+		<th>NZB:</th>
+		<td><a href="getnzb.php?identifier={$file.chash}&subject={$file.subject|urlencode}&group={$group.id}&type=multi" download>{$nzb_img}</a></td>
 	</tr>
 </table>

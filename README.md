@@ -46,7 +46,7 @@ Install the above requirements.
 Create a database in mysql, import the schema in the sql folder.
 Git clone into a folder and set up your web server to point to the php/frontend folder
 Edit config.php
-
+YourInstallDir/php/frontend/raintpl/tmp must have read access
 
 
 
@@ -109,5 +109,7 @@ control+c to get out of mysql
 
 Import the mysql schema. (For root : sudo mysql -p yapi < /var/www/yapi/sql/mysql.sql)
 mysql -p --user=YourUserName yapi < /var/www/yapi/sql/mysql.sql
+
+Give write access to YourInstallDir/php/frontend/raintpl/tmp
 
 Edit config.php with your DB, nntp, etc settings.

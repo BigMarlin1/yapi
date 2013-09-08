@@ -1,0 +1,33 @@
+<table border="1" style="border-collapse:collapse;">
+	<tr class="header">
+		<th>Subject</th>
+		<th>Size</th>
+		<th>Completion</th>
+		<th>Added to Usenet</th>
+		<th>NZB</th>
+	</tr>
+	{loop="filearr"}
+	<tr class="row_{$counter%2+1}">
+		<td><a style="text-decoration: none;" href="browsenzb.php?chash={$value1.chash}&subject={$value1.subject|urlencode}&group={$group.id}">{$value1.subject}</a></td>
+		<td>
+			{if="$value1.size > 1099511627776"} {$size=$value1.size / 1099511627776}
+				{$size|round}TiB
+			{elseif="$value1.size > 1073741824"} {$size=$value1.size / 1073741824}
+				{$size|round}GiB
+			{elseif="$value1.size > 1048576"} {$size=$value1.size / 1048576}
+				{$size|round}MiB
+			{elseif="$value1.size > 1024"} {$size=$value1.size / 1024}
+				{$size|round}KiB
+			{else} {$value1.size}B
+			{/if}
+		</td>
+		<td>
+			{$completion=($value1.actualparts / $value1.totalparts) * 100}
+			{if="$completion > 100"} {$completion=100}{/if}
+			{$completion|number_format}%
+		</td>
+		<td>{$value1.utime|utsince} Ago</td>
+		<td><a href="getnzb.php?identifier={$value1.chash}&subject={$value1.subject|urlencode}&group={$group.id}&type=multi" download>{$nzb_img}</a></td>
+	</tr>
+	{/loop}
+</table>

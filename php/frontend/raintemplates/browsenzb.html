@@ -1,0 +1,49 @@
+<table border="1">
+	<tr class="row_1">
+		<th>Added locally:</th>
+		<td>{$file.ltime|utsince} Ago</td>
+	</tr>
+	<tr class="row_2">
+		<th>Added to usenet:</th>
+		<td>{$file.utime|utsince} Ago</td>
+	</tr>
+	<tr class="row_1">
+		<th>Posted by:</th>
+		<td>{$file.poster}</td>
+	</tr>
+	<tr class="row_2">
+		<th>Group:</th>
+		<td>{$group.name}</td>
+	</tr>
+	<tr class="row_1">
+		<th>Size:</th>
+		<td>
+			{if="$file.size > 1099511627776"} {$size=$file.size / 1099511627776}
+				{$size|round}TiB
+			{elseif="$file.size > 1073741824"} {$size=$file.size / 1073741824}
+				{$size|round}GiB
+			{elseif="$file.size > 1048576"} {$size=$file.size / 1048576}
+				{$size|round}MiB
+			{elseif="$file.size > 1024"} {$size=$file.size / 1024}
+				{$size|round}KiB
+			{else} {$file.size}B
+			{/if}
+		</td>
+	</tr>
+		<tr class="row_1">
+		<th>Parts we have:</th>
+		<td><a style="text-decoration: none;" href="nzbcontents.php?page=1&chash={$file.chash}&subject={$file.subject|urlencode}&group={$group.id}">{$file.actualparts}</td>
+	</tr>
+	<tr class="row_2">
+		<th>Max parts possible:</th>
+		<td><a style="text-decoration: none;" href="nzbcontents.php?page=1&chash={$file.chash}&subject={$file.subject|urlencode}&group={$group.id}">{$file.totalparts}</a></td>
+	</tr>
+	<tr class="row_2">
+		<th>Completion:</th>
+		<td>
+			{$completion=($file.actualparts / $file.totalparts) * 100}
+			{if="$completion > 100"} {$completion=100}{/if}
+			{$completion|number_format}%
+		</td>
+	</tr>
+</table>

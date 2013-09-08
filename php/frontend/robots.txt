@@ -1,0 +1,3 @@
+# Block robots from scanning all files/folders within this folder.
+User-agent: *
+Disallow: /

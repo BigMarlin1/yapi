@@ -1,0 +1,28 @@
+<ul class="pagination">
+	{if="$lastpage > 0"}
+		<li class="pagination">
+			<a class="pagination" href="nzbcontents.php?page={$lastpage}&chash={$chash}&subject={$subject|urlencode}&group={$group}">
+				« Previous [{$lastpage}]
+			</a>
+		</li>
+	{/if}
+	{if="$maxpages > 1"}
+		<li class="pagination">
+			<a class="pagination">{$curpage}</a>
+		</li>
+	{/if}
+	{if="$nextpage <= $maxpages"}
+		<li class="pagination">
+			<a class="pagination" href="nzbcontents.php?page={$nextpage}&chash={$chash}&subject={$subject|urlencode}&group={$group}">
+				[{$nextpage}] Next »
+			</a>
+		</li>
+	{/if}
+	{if="$curpage > 1"}
+		<li class="pagination">
+			<a class="pagination" href="nzbcontents.php?page=1&chash={$chash}&subject={$subject|urlencode}&group={$group}">
+				[Return to start]
+			</a>
+		</li>
+	{/if}
+</ul>

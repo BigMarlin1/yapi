@@ -1,0 +1,28 @@
+<table border="1">
+	<tr>
+		<th>Group</th>
+		<th>Group ID</th>
+		<th>Files</th>
+		<th>Collections</th>
+		<th>Forward status</th>
+		<th>Backfill status</th>
+		<th>Newest article #</th>
+		<th>Oldest article #</th>
+		<th>Newest article Date</th>
+		<th>Oldest article Date</th>
+	</tr>
+	{loop="grouparr"}
+	<tr>
+		<td><a href="browsegroup.php?groupid={$value1.id}&group={$value1.name}&page=1">{$value1.name}</a></td>
+		<td>{$value1.id}</td>
+		<td>{if="$value1.tstatus == 1"} {function="getfcount($value1.id)"}{else} 0{/if}</td>
+		<td>{if="$value1.tstatus == 1"} {function="getccount($value1.id)"}{else} 0{/if}</td>
+		<td>{if="$value1.factive == 1"} Yes{else} No{/if}</td>
+		<td>{if="$value1.bactive == 1"} Yes{else} No{/if}</td>
+		<td>{if="$value1.lastart > 0"} {$value1.lastart}{else} N/A{/if}</td>
+		<td>{if="$value1.firstart > 0"} {$value1.firstart}{else} N/A{/if}</td>
+		<td>{if="$value1.lastdate != 0"} {$value1.lastdate|utdate}{else} N/A{/if}</td>
+		<td>{if="$value1.firstdate !=0"} {$value1.firstdate|utdate}{else} N/A{/if}</td>
+	</tr>
+	{/loop}
+</table> 

@@ -37,7 +37,6 @@ Class headers
 		{
 			foreach ($groups as $group)
 			{
-				$gid = $group["id"];
 				if ($group["tstatus"] == 0)
 				{
 					$db = new DB;
@@ -95,6 +94,8 @@ Class headers
 		{
 			$new = true;
 			$oldest = $gover["last"] - $this->newgroupfetch;
+			if ($oldest <= $gover["first"])
+				$oldest = $gover["first"];
 			$newest = $gover["last"];
 		}
 		else if ($group["lastart"] < $gover["last"])

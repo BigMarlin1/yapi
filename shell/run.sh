@@ -3,8 +3,8 @@
 # Change this path to the php/cli folder.
 export cli_dir="/var/www/yapi/php/cli"
 export php="$(which php5)"
-# Amount of time to sleep in between.
-export sleep="60"
+# Amount of time to sleep in between loops.
+export sleep="240"
 
 while :
 do

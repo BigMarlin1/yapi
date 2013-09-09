@@ -30,19 +30,23 @@ Class files
 	public function getforbrowse($offset)
 	{
 		$db = new DB;
-		$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 ORDER BY name ASC");
+		$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT ".MAX_PERPAGE);
 		$count = count($tids);
 		if ($count > 0)
 		{
 			$fstr = '';
 			$i = 1;
+			$max = MAX_PERPAGE;
+			if ($count > 25)
+				$max = (MAX_PERPAGE / 2);
+
 			foreach ($tids as $tid)
 			{
 				$id = $tid["id"];
 				if ($i++ == $count)
-					$fstr .= " (SELECT * FROM files_$id GROUP BY chash LIMIT ".MAX_PERPAGE." OFFSET $offset)";
+					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualpart FROM files_$id GROUP BY chash LIMIT $max OFFSET $offset)";
 				else
-					$fstr .= " (SELECT * FROM files_$id GROUP BY chash LIMIT ".MAX_PERPAGE." OFFSET $offset) UNION ";
+					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualpart FROM files_$id GROUP BY chash LIMIT $max OFFSET $offset) UNION ";
 			}
 			return $db->query(sprintf("SELECT * FROM ($fstr) AS files ORDER BY utime DESC LIMIT ".MAX_PERPAGE));
 		}

@@ -28,6 +28,9 @@ $tpl->assign("nextpage", $nextpage);
 $tpl->assign("maxpages", $maxpages);
 switch($type)
 {
+	case "browseall":
+		$tpl->draw("brallpaginator");
+		break;
 	case "browse":
 		$tpl->draw("brzpaginator");
 		break;

@@ -17,6 +17,7 @@ class nzb
 				break;
 			case "multi":
 				$files = $db->query(sprintf("SELECT f.*, g.name AS groupname FROM files_%d f LEFT JOIN groups g ON g.id = f.groupid WHERE f.chash = %s", $groupid, $db->escapeString($identifier))); // Collection of files.
+				break;
 		}
 
 		if (count($files) > 0)

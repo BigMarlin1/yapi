@@ -44,11 +44,40 @@ Class files
 			{
 				$id = $tid["id"];
 				if ($i++ == $count)
-					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualpart FROM files_$id GROUP BY chash LIMIT $max OFFSET $offset)";
+					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_$id GROUP BY chash LIMIT $max OFFSET $offset)";
 				else
-					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualpart FROM files_$id GROUP BY chash LIMIT $max OFFSET $offset) UNION ";
+					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_$id GROUP BY chash LIMIT $max OFFSET $offset) UNION ";
 			}
-			return $db->query(sprintf("SELECT * FROM ($fstr) AS files ORDER BY utime DESC LIMIT ".MAX_PERPAGE));
+			return $db->query(sprintf("SELECT files.*, groups.name, groups.id AS groupid FROM ($fstr) AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT ".MAX_PERPAGE));
+		}
+		else
+			return false;
+	}
+
+	// Count for browseall paginator.
+	public function getbrowsecount()
+	{
+		$db = new DB;
+		$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT ".MAX_PERPAGE);
+		$count = count($tids);
+		if ($count > 0)
+		{
+			$fstr = '';
+			$i = 1;
+
+			foreach ($tids as $tid)
+			{
+				$id = $tid["id"];
+				if ($i == 1)
+					$fstr .= "(SELECT COUNT(DISTINCT(chash)) FROM files_$id) +";
+				else if ($i == $count)
+					$fstr .= " (SELECT COUNT(DISTINCT(chash)) FROM files_$id)";
+				else
+					$fstr .= " (SELECT COUNT(DISTINCT(chash)) FROM files_$id) +";
+				$i++;
+			}
+			$c = $db->queryOneRow("SELECT $fstr AS cnt");
+			return $c["cnt"];
 		}
 		else
 			return false;

@@ -23,3 +23,9 @@ function utdate($time)
 {
 	return date('Y-m-d H:i:s', $time);
 }
+
+// Replace alt.binaries with a.b
+function abreplace($group)
+{
+	return str_replace('alt.binaries', 'a.b', $group);
+}

@@ -55,6 +55,7 @@ After installing/importing the schema/configuring config.php
 Run group_toggle.php to enable a group (ie: php group_toggle.php enable forward alt.binaries.teevee)
 Run update_headers.php to fetch new headers, you'll have to run it twice the first time to create the mysql tables (ie: php update_headers.php alt.binaries.teevee)
 To get more headers, run group_toggle.php again and enable backfill for the group, then run backfill_headers.php
+You can run run.sh with screen to run update_headers.php in a loop ( screen sh run.sh ), edit the script and set the path.
 
 
 

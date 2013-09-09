@@ -40,9 +40,9 @@ Class files
 			{
 				$id = $tid["id"];
 				if ($i++ == $count)
-					$fstr .= " (SELECT * FROM files_$id GROUP BY chash LIMIT ".MAX_PERPAGE.")";
+					$fstr .= " (SELECT * FROM files_$id GROUP BY chash LIMIT ".MAX_PERPAGE." OFFSET $offset)";
 				else
-					$fstr .= " (SELECT * FROM files_$id GROUP BY chash LIMIT ".MAX_PERPAGE.") UNION ";
+					$fstr .= " (SELECT * FROM files_$id GROUP BY chash LIMIT ".MAX_PERPAGE." OFFSET $offset) UNION ";
 			}
 			return $db->query(sprintf("SELECT * FROM ($fstr) AS files ORDER BY utime DESC LIMIT ".MAX_PERPAGE));
 		}

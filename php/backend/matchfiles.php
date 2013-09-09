@@ -6,6 +6,8 @@ class matchfiles
 	{
 		switch ($groupname)
 		{
+			case "alt.binaries.hdtv.x264":
+				return $this->hdtvx264($subject);
 			case "alt.binaries.moovee":
 				return $this->moovee($subject);
 			case "alt.binaries.teevee":
@@ -34,7 +36,6 @@ class matchfiles
 			$matched = $total = 0;
 			foreach ($files as $file)
 			{
-				$total++;
 				$match = $this->main($group["name"], $file["subject"]);
 				if ($match != $file["subject"])
 				{
@@ -42,14 +43,18 @@ class matchfiles
 					if ($chash != $file["chash"])
 					{
 						$db->queryExec(sprintf("UPDATE files_%d SET chash = %s WHERE id = %d", $group["id"], $db->escapeString($chash), $file["id"]));
-						echo "+";
 						$matched++;
+						if ($matched %100 == 0)
+							echo "+";
 					}
+					else
+						$total++;
 				}
+				else
+					$total++;
+
 				if ($total %100 == 0)
 					echo ".";
-				if ($total %10000 == 0)
-					echo "\n";
 			}
 			echo "\n$matched files were rematched.\n";
 		}
@@ -63,6 +68,19 @@ class matchfiles
 		$subject = preg_replace('/[\[( ]\d+\/\d+[\]) ]/', '', $subject);
 		$subject = preg_replace('/([-_](proof|sample|thumbs?))*(\.part\d*)?(\.r(ar|\d+))?(\d{1,3}\.rev"|\.vol.+?"|\.[A-Za-z0-9]{2,4}"|")/', '', $subject);
 		return $subject;
+	}
+
+	// alt.binaries.hdtv.x264
+	public function hdtvx264($subject)
+	{
+		//[86/97] - "135631-2.9" yEnc
+		if (preg_match('/^\[\d+(\/\d+\] - "\d+-\d+\.).+?" yEnc$/', $subject, $match))
+			return $match[1];
+		//Zeit des Erwachens - mit Robert De Niro - 1990 - (German) - AC3 HD720p Avi by Waldorf - [05/74] - "Zeit des Erwachens.par2" yEnc
+		else if (preg_match('/(.+? HD720p.+?by Waldorf\s+-\s+\[)\d+\/\d+\]/', $subject, $match))
+			return $match[1];
+		else
+			return $this->generic($subject);
 	}
 
 	// alt.binaries.moovee

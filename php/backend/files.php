@@ -26,7 +26,7 @@ Class files
 		return $db->queryOneRow(sprintf("SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_%d WHERE chash = %s GROUP BY chash", $groupid, $db->escapeString($chash)));
 	}
 
-	// Get for browse page, need to select from all groups.
+	// Get for browse page, need to select from all groups. Cache with memcache long.
 	public function getforbrowse($offset)
 	{
 		$db = new DB;
@@ -48,13 +48,13 @@ Class files
 				else
 					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_$id GROUP BY chash LIMIT $max OFFSET $offset) UNION ";
 			}
-			return $db->query(sprintf("SELECT files.*, groups.name, groups.id AS groupid FROM ($fstr) AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT ".MAX_PERPAGE));
+			return $db->query(sprintf("SELECT files.*, groups.name, groups.id AS groupid FROM ($fstr) AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT ".MAX_PERPAGE), true);
 		}
 		else
 			return false;
 	}
 
-	// Count for browseall paginator.
+	// Count for browseall paginator. Cache with memcache long.
 	public function getbrowsecount()
 	{
 		$db = new DB;
@@ -87,7 +87,7 @@ Class files
 	public function getforbnzbcontents($chash, $groupid, $offset)
 	{
 		$db = new DB;
-		return $db->query(sprintf("SELECT * FROM files_%d WHERE chash = %s ORDER BY subject ASC LIMIT %d OFFSET %d", $groupid, $db->escapeString($chash), MAX_PERPAGE, $offset));
+		return $db->query(sprintf("SELECT * FROM files_%d WHERE chash = %s ORDER BY subject ASC LIMIT %d OFFSET %d", $groupid, $db->escapeString($chash), MAX_PERPAGE, $offset), true);
 	}
 
 	// Count for nzbcontents pagination.

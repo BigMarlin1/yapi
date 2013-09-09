@@ -26,6 +26,30 @@ Class files
 		return $db->queryOneRow(sprintf("SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_%d WHERE chash = %s GROUP BY chash", $groupid, $db->escapeString($chash)));
 	}
 
+	// Get for browse page, need to select from all groups.
+	public function getforbrowse($offset)
+	{
+		$db = new DB;
+		$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 ORDER BY name ASC");
+		$count = count($tids);
+		if ($count > 0)
+		{
+			$fstr = '';
+			$i = 1;
+			foreach ($tids as $tid)
+			{
+				$id = $tid["id"];
+				if ($i++ == $count)
+					$fstr .= " (SELECT * FROM files_$id GROUP BY chash LIMIT ".MAX_PERPAGE.")";
+				else
+					$fstr .= " (SELECT * FROM files_$id GROUP BY chash LIMIT ".MAX_PERPAGE.") UNION ";
+			}
+			return $db->query(sprintf("SELECT * FROM ($fstr) AS files ORDER BY utime DESC LIMIT ".MAX_PERPAGE));
+		}
+		else
+			return false;
+	}
+
 	// Get all files for nzbcontents.
 	public function getforbnzbcontents($chash, $groupid, $offset)
 	{

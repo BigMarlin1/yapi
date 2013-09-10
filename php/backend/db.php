@@ -29,7 +29,10 @@ class DB
 		}
 		$this->memcached = false;
 		if (defined("MEMCACHE_ENABLED"))
-			$this->memcached = MEMCACHE_ENABLED;
+		{
+			if (MEMCACHE_ENABLED === true)
+				$this->memcached = MEMCACHE_ENABLED;
+		}
 	}
 
 	// Returns a string, escaped with single quotes, false on failure. http://www.php.net/manual/en/pdo.quote.php

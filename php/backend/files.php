@@ -83,7 +83,7 @@ Class files
 			return false;
 	}
 
-	// Get for browse page, need to select from all groups. Cache with memcache long.
+	// Get for search page, need to select from all groups. Cache with memcache long.
 	public function getforsearch($subject, $age, $group, $offset)
 	{
 		$db = new DB;
@@ -117,7 +117,7 @@ Class files
 			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE subject LIKE %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d", $group, $db->escapeString("%$subject%"), $age, MAX_PERPAGE, $offset));
 	}
 
-	// Count for browseall paginator. Cache with memcache long.
+	// Count for search paginator. Cache with memcache long.
 	public function getsearchcount($subject, $age, $group)
 	{
 		$db = new DB;

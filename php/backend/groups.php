@@ -33,6 +33,13 @@ Class groups
 		return $db->query($q);
 	}
 
+	// Get all groups that have at least 1 file.
+	public function getstarted()
+	{
+		$db = new DB;
+		return $db->query("SELECT name, id FROM groups WHERE tstatus = 1 AND lastart > 0 ORDER BY name ASC");
+	}
+
 	// Return the amount of files indexed for the group. Cache result with memcache.
 	public function getfilecount($gid)
 	{

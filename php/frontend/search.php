@@ -10,7 +10,7 @@
 			?>
 			<div id="content">
 				<div id="innercontent">
-					<?php include('rainscripts/browseall.php'); ?>
+					<?php include('rainscripts/search.php'); ?>
 				</div>
 			</div>
 			<?php include('rainscripts/footer.php'); ?>

@@ -1,0 +1,28 @@
+<ul class="pagination">
+	{if="$lastpage > 0"}
+		<li class="pagination">
+			<a class="pagination" href="search.php?subject={$subject|urlencode}&retention={$retention}&group={$group}&page={$lastpage}">
+				« Previous [{$lastpage}]
+			</a>
+		</li>
+	{/if}
+	{if="$maxpages > 1"}
+		<li class="pagination">
+			<a class="pagination">{$curpage}</a>
+		</li>
+	{/if}
+	{if="$nextpage <= $maxpages"}
+		<li class="pagination">
+			<a class="pagination" href="search.php?subject={$subject|urlencode}&retention={$retention}&group={$group}&page={$nextpage}">
+				[{$nextpage}] Next »
+			</a>
+		</li>
+	{/if}
+	{if="$curpage > 1"}
+		<li class="pagination">
+			<a class="pagination" href="search.php?subject={$subject|urlencode}&retention={$retention}&group={$group}&page=1">
+				[Return to start]
+			</a>
+		</li>
+	{/if}
+</ul>

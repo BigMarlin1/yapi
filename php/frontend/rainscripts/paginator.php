@@ -37,5 +37,8 @@ switch($type)
 	case "nzbcontents":
 		$tpl->draw("nzbcpaginator");
 		break;
+	case "search":
+		$tpl->draw("srchpaginator");
+		break;
 }
 ?>

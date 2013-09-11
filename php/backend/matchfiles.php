@@ -87,8 +87,8 @@ class matchfiles
 	public function moovee($subject)
 	{
 		//[135615]-[FULL]-[#a.b.moovee]-[ Prince.Of.Darkness.REMASTERED.1987.BDRiP.x264-LiViDiTY ]-[08/34] - "ly-podarknesssd-sample.vol7+2.par2" yEnc
-		if (preg_match('/^(\[\d+\]-\[.+?\]-\[.+?\]-\[ .+? \]-\[)\d+\/\d+\] ?(- |")".+?""? yEnc$/', $subject, $match))
-			return $match[1];
+		if (preg_match('/^((\[\d+\]-\[.+?\]-\[.+?\]-\[ .+? \])-\[)\d+\/\d+\] ?(- |")".+?""? yEnc$/', $subject, $match))
+			return array("hash" => $match[1], "subject" => $match[2]);
 		//[86/97] - "135631-2.9" yEnc
 		else if (preg_match('/^\[\d+(\/\d+\] - "(\d+-\d+)\.).+?" yEnc$/', $subject, $match))
 			return array("hash" => $match[1], "subject" => $match[2]);

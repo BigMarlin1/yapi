@@ -4,8 +4,9 @@ yapi
 Yet another php indexer (usenet).
 
 Work in progress, learning how to make a web interface, goal is to get a binsearch type site with a api and password checking, nothing more than that.
-No api or password checking yet. Very basic regex, so matching won't be too good.
+No password checking yet. Basic regex, so matching won't be too good, will add more with time.
 Some of the mysql tables are innodb compressed, some are myisam.
+API and search are basic right now, will improve with time.
 
 
 

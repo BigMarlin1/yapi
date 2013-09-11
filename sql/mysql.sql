@@ -38,8 +38,8 @@ CREATE TABLE files
 	/* 4 billion files per group should be good enough */
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	groupid MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
-	subject VARCHAR(255) NOT NULL DEFAULT '',
-	origsubject VARCHAR(255) NOT NULL DEFAULT '',
+	subject VARCHAR(500) NOT NULL DEFAULT '',
+	origsubject VARCHAR(500) NOT NULL DEFAULT '',
 	poster VARCHAR(255) NOT NULL DEFAULT '',
 	/* the size of every part  combined in bytes */
 	fsize BIGINT UNSIGNED NOT NULL DEFAULT 0,

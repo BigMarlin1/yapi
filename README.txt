@@ -24,7 +24,7 @@ NZB files are generated when you click the button (so they update in real time a
 
 Requirements:
 PHP 5.4+
-MySQL 5+ (or one of the many forks : mariadb, percona, etc..)
+MySQL 5.0.3+ (or one of the many forks : mariadb, percona, etc..) (varchar in MySQL 5.0.3+ has been raised from 255 to 65535) (I use 5.5 so I recommend that.)
 
 apache2 or nginx for web server.
 

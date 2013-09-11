@@ -18,14 +18,14 @@ class matchfiles
 	}
 
 	// Rematch subjects if you changed the regex.
-	public function rematch($groupname)
+	public function rematch($groupname, $force=false)
 	{
 		require_once("config.php");
 		require_once(PHP_DIR."/backend/groups.php");
 		$groups = new groups;
 		$group = $groups->getgroupinfo($groupname);
 		if ($group["tstatus"] == 0)
-			exit ("Unable to rematch regex on this group, it has never been run.\n");
+			exit ("Unable to rematch regex on this group, it has never been run. Run update_headers.php on it first.\n");
 
 		require_once(PHP_DIR."/backend/db.php");
 		$db = new DB;
@@ -33,14 +33,14 @@ class matchfiles
 		if (count($files) > 0)
 		{
 			echo "Trying to rematch ".count($files)." files. File match = +\n";
-			$matched = $total = 0;
+			$matched = $unmatched = 0;
 			foreach ($files as $file)
 			{
 				$matches = $this->main($group["name"], $file["origsubject"]);
-				if ($matches["subject"] != $file["subject"])
+				if ($matches["subject"] != $file["subject"] || $force === true)
 				{
 					$chash = sha1($matches["hash"]);
-					if ($chash != $file["chash"])
+					if ($chash != $file["chash"] || $force === true)
 					{
 						$db->queryExec(sprintf("UPDATE files_%d SET chash = %s, subject = %s WHERE id = %d", $group["id"], $db->escapeString($chash), $db->escapeString($matches["subject"]), $file["id"]));
 						$matched++;
@@ -48,12 +48,12 @@ class matchfiles
 							echo "+";
 					}
 					else
-						$total++;
+						$unmatched++;
 				}
 				else
-					$total++;
+					$unmatched++;
 
-				if ($total %100 == 0)
+				if ($unmatched %100 == 0 && $unmatched != 0)
 					echo ".";
 			}
 			echo "\n$matched files were rematched.\n";
@@ -67,7 +67,11 @@ class matchfiles
 	{
 		$subject = preg_replace('/[\[( ]\d+(\/| of )\d+[\]) ]/', '', $subject);
 		$subject = preg_replace('/([-_](proof|sample|thumbs?))*(\.part\d*)?(\.r(ar|\d+))?(\d{1,3}\.rev"|\.vol.+?"|\.[A-Za-z0-9]{2,4}"|")/', '', $subject);
-		return array("hash" => $subject, "subject" => $subject);
+
+		$csub = preg_replace('/^[^\w]*/', '', $subject);
+		$csub = trim(utf8_encode(preg_replace('/yEnc$/', '', $csub)));
+
+		return array("hash" => $subject, "subject" => $csub);
 	}
 
 	// alt.binaries.hdtv.x264
@@ -87,11 +91,11 @@ class matchfiles
 	public function moovee($subject)
 	{
 		//[135615]-[FULL]-[#a.b.moovee]-[ Prince.Of.Darkness.REMASTERED.1987.BDRiP.x264-LiViDiTY ]-[08/34] - "ly-podarknesssd-sample.vol7+2.par2" yEnc
-		if (preg_match('/^((\[\d+\]-\[.+?\]-\[.+?\]-\[ .+? \])-\[)\d+\/\d+\] ?(- |")".+?""? yEnc$/', $subject, $match))
+		if (preg_match('/^(\[\d+\]-\[.+?\]-\[.+?\]-\[ (.+?) \]-\[)\d+\/\d+\] ?(- |")".+?""? yEnc$/', $subject, $match))
 			return array("hash" => $match[1], "subject" => $match[2]);
 		//[86/97] - "135631-2.9" yEnc
-		else if (preg_match('/^\[\d+(\/\d+\] - "(\d+-\d+)\.).+?" yEnc$/', $subject, $match))
-			return array("hash" => $match[1], "subject" => $match[2]);
+		else if (preg_match('/^\[\d+(\/\d+\] - "\d+-\d+\.).+?" yEnc$/', $subject, $match))
+			return array("hash" => $match[1], "subject" => $subject);
 		else
 			return $this->generic($subject);
 	}
@@ -101,11 +105,19 @@ class matchfiles
 	{
 		//[152393]-[FULL]-[#a.b.teevee]-[ Do.No.Harm.S01E11.720p.WEB-DL.DD5.1.H.264-pcsyndicate ]-[17/39] - "Do.No.Harm.S01E11.720p.WEB-DL.DD5.1.H.264-pcsyndicate.part16.rar" yEnc
 		//[152426]-[FULL]-[#a.b.teevee@EFNet]-[ Greys.Anatomy.S06E15.DVDRip.XviD-REWARD ]-[09/35] ""greys.anatomy.s06e15.dvdrip.xvid-reward.nfo"" yEnc
-		if (preg_match('/^((\[\d+\]-\[.+?\]-\[.+?\]-\[ .+? \])-\[)\d+\/\d+\] ?(- |")".+?""? yEnc$/', $subject, $match))
+		if (preg_match('/^(\[\d+\]-\[.+?\]-\[.+?\]-\[ (.+?) \]-\[)\d+\/\d+\] ?(- |")".+?""? yEnc$/', $subject, $match))
+			return array("hash" => $match[1], "subject" => $match[2]);
+		//Aqua.Teen.Hunger.Force.S10E04.Banana.Planet.1080p.WEB-DL.DD5.1.H264-iT00NZ [01/15] - "Aqua.Teen.Hunger.Force.S10E04.Banana.Planet.1080p.WEB-DL.DD5.1.H264-iT00NZ.mkv.001" yEnc
+		//House.Hunters.International.S57E05.720p.hdtv.x264 [01/21] - "House.Hunters.International.S57E05.720p.hdtv.x264.nfo" yEnc
+		//The.Real.Housewives.Of.New.Jersey.S05E15.Zen.Things.I.Hate.About.You.WEB-DL.x264-RKSTR - [01/32] - "The.Real.Housewives.Of.New.Jersey.S05E15.Zen.Things.I.Hate.About.You.WEB-DL.x264-RKSTR.par2" yEnc
+		else if (preg_match('/^(([A-Z0-9].{4,}?S\d+E\d+.+?[-.][A-Za-z0-9]+) (- )?\[)\d+\/\d+\] - ".+?" yEnc$/', $subject, $match))
+			return array("hash" => $match[1], "subject" => $match[2]);
+		//The Bachelor AU H.264 S01E01 [6 of 68] "The Bachelor AU S01E01.mp4.006" yEnc
+		else if (preg_match('/^(([A-Z0-9].{4,}?S\d+E\d+) \[)\d+ of \d+\] ".+?" yEnc$/', $subject, $match))
 			return array("hash" => $match[1], "subject" => $match[2]);
 		//anckfheuwydj502 - [9/9] - "anckfheuwydj548.vol31+16.par2" yEnc
-		else if (preg_match('/^(([a-z0-9]+) - \[)\d+\/\d+\] - ".+?" yEnc$/', $subject, $match))
-			return array("hash" => $match[1], "subject" => $match[2]);
+		else if (preg_match('/^([a-z0-9]+ - \[)\d+\/\d+\] - ".+?" yEnc$/', $subject, $match))
+			return array("hash" => $match[1], "subject" => $subject);
 		else
 			return $this->generic($subject);
 	}

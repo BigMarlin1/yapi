@@ -27,6 +27,7 @@ define('DEBUG_MESSAGES', false); // Turn on debug messages.
 // Website settings.
 define('WEB_NAME', 'Yet another php indexer'); // Name of the website.
 define('MAX_PERPAGE', 50); // Maximum amount of releases per page.
+define('ADMIN_EMAIL', 'example@example.com'); // Email address for people to contact you.
 
 // Memcache settings.
 define('MEMCACHE_ENABLED', false); // Wether to use memcached or not. Memcache keeps a MySQL query result in ram.

@@ -18,14 +18,32 @@ function utsince($time)
 		return $diff." Secs";
 }
 
-// Convert unixtime to date.
+// Convert unixtime to date: Tue, 10 Sep 2013 14:39:34 -0400
 function utdate($time)
 {
-	return date('Y-m-d H:i:s', $time);
+	return date('D, j M Y G:i:s O', $time);
 }
 
 // Replace alt.binaries with a.b
 function abreplace($group)
 {
 	return str_replace('alt.binaries', 'a.b', $group);
+}
+
+// Encode a string to be compatible in a URL.
+function encodeforurl($str)
+{
+	return htmlentities($str);
+}
+
+// Encode a url to xml compliant.
+function xml_entities($url)
+{
+	return strtr($url, array("<" => "&lt;", ">" => "&gt;", '"' => "&quot;", "'" => "&apos;", "&" => "&amp;", "#" => ""));
+}
+
+// Encode a string to xml compliant.
+function xml_escape($str)
+{
+	return strtr($str, array("<" => "_", ">" => "_", '"' => "_", "'" => "_", "&" => "_", "#" => "_"));
 }

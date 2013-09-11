@@ -60,7 +60,12 @@ Class files
 		$db = new DB;
 		$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT ".MAX_PERPAGE);
 		$count = count($tids);
-		if ($count > 0)
+		if ($count === 1)
+		{
+			$c = $db->queryOneRow("SELECT COUNT(DISTINCT(chash)) AS cnt FROM files_".$tids[0]["id"]);
+			return $c["cnt"];
+		}
+		else if ($count > 1)
 		{
 			$fstr = '';
 			$i = 1;
@@ -93,6 +98,26 @@ Class files
 		else
 			$age = "AND utime > ".(time() - ($age * 86400));
 
+		// Split multi search terms.
+		$words = explode(' ', $subject);
+		$subq = '';
+		$i = 0;
+		if (count($words) > 0)
+		{
+			foreach ($words as $word)
+			{
+				if ($word != "")
+				{
+					if ($i++ == 0 && (strpos($word, "^") === 0))
+						$subq .= sprintf(" AND subject LIKE %s", $db->escapeString(substr($word, 1)."%"));
+					elseif (substr($word, 0, 2) == '--')
+						$subq .= sprintf(" AND subject NOT LIKE %s", $db->escapeString("%".substr($word, 2)."%"));
+					else
+						$subq .= sprintf(" AND subject LIKE %s", $db->escapeString("%".$word."%"));
+				}
+			}
+		}
+
 		if ($group == "all")
 		{
 			$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT ".MAX_PERPAGE);
@@ -107,14 +132,14 @@ Class files
 			{
 				$id = $tid["id"];
 				if ($i++ == $count)
-					$fstr .= sprintf("(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_$id WHERE subject LIKE %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d)", $db->escapeString("%$subject%"), $age, $max, $offset);
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_$id WHERE 1=1 %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d)", $subq, $age, $max, $offset);
 				else
-					$fstr .= sprintf("(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_$id WHERE subject LIKE %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d) UNION ", $db->escapeString("%$subject%"), $age, $max, $offset);
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_$id WHERE 1=1 %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d) UNION ", $subq, $age, $max, $offset);
 			}
 			return $db->query("SELECT files.*, groups.name, groups.id AS groupid FROM ($fstr) AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT ".MAX_PERPAGE, true);
 		}
 		else
-			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE subject LIKE %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d", $group, $db->escapeString("%$subject%"), $age, MAX_PERPAGE, $offset));
+			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d", $group, $subq, $age, MAX_PERPAGE, $offset));
 	}
 
 	// Count for search paginator. Cache with memcache long.
@@ -126,11 +151,36 @@ Class files
 		else
 			$age = "AND utime > ".(time() - ($age * 86400));
 
+		// Split multi search terms.
+		$words = explode(' ', $subject);
+		$subq = '';
+		$i = 0;
+		if (count($words) > 0)
+		{
+			foreach ($words as $word)
+			{
+				if ($word != '')
+				{
+					if ($i++ == 0 && (strpos($word, "^") === 0))
+						$subq .= sprintf(" AND subject LIKE %s", $db->escapeString(substr($word, 1)."%"));
+					elseif (substr($word, 0, 2) == '--')
+						$subq .= sprintf(" AND subject NOT LIKE %s", $db->escapeString("%".substr($word, 2)."%"));
+					else
+						$subq .= sprintf(" AND subject LIKE %s", $db->escapeString("%".$word."%"));
+				}
+			}
+		}
+
 		if ($group == "all")
 		{
 			$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT ".MAX_PERPAGE);
 			$count = count($tids);
-			if ($count > 0)
+			if ($count === 1)
+			{
+				$c = $db->queryOneRow(sprintf("SELECT COUNT(DISTINCT(chash)) AS cnt FROM files_%d WHERE 1=1 %s %s", $tids[0]["id"], $subq, $age));
+				return $c["cnt"];
+			}
+			else if ($count > 0)
 			{
 				$fstr = '';
 				$i = 1;
@@ -139,11 +189,11 @@ Class files
 				{
 					$id = $tid["id"];
 					if ($i == 1)
-						$fstr .= sprintf("(SELECT COUNT(DISTINCT(chash)) FROM files_$id WHERE subject LIKE %s %s) +", $db->escapeString("%$subject%"), $age);
+						$fstr .= sprintf("(SELECT COUNT(DISTINCT(chash)) FROM files_$id WHERE 1=1 %s %s) +", $subq, $age);
 					else if ($i == $count)
-						$fstr .= sprintf(" (SELECT COUNT(DISTINCT(chash)) FROM files_$id WHERE subject LIKE %s %s)", $db->escapeString("%$subject%"), $age);
+						$fstr .= sprintf(" (SELECT COUNT(DISTINCT(chash)) FROM files_$id WHERE 1=1 %s %s)", $subq, $age);
 					else
-						$fstr .= sprintf(" (SELECT COUNT(DISTINCT(chash)) FROM files_$id WHERE subject LIKE %s %s) +", $db->escapeString("%$subject%"), $age);
+						$fstr .= sprintf(" (SELECT COUNT(DISTINCT(chash)) FROM files_$id WHERE 1=1 %s %s) +", $subq, $age);
 					$i++;
 				}
 				$c = $db->queryOneRow("SELECT $fstr AS cnt");
@@ -154,10 +204,68 @@ Class files
 		}
 		else
 		{
-			$c = $db->queryOneRow(sprintf("SELECT COUNT(DISTINCT(chash)) AS cnt FROM files_%d WHERE subject LIKE %s %s", $group, $db->escapeString("%$subject%"), $age));
+			$c = $db->queryOneRow(sprintf("SELECT COUNT(DISTINCT(chash)) AS cnt FROM files_%d WHERE 1=1 %s %s", $group, $subq, $age));
 			return $c["cnt"];
 		}
-			
+	}
+
+	// Search, for API.
+	public function apisearch($subject, $age, $group, $offset, $limit, $minsize, $maxsize)
+	{
+		$db = new DB;
+		$ages = $minsizes = $maxsizes = '';
+		// Convert age to seconds.
+		if ($age > 0 && is_numeric($age))
+			$ages = "AND utime > ".(time() - ($age * 86400));
+
+		if ($minsize > 0 && is_numeric($minsize))
+			$minsizes = "AND size > $minsize";
+
+		if ($maxsize > 0 && is_numeric($maxsize))
+			$maxsizes = "AND size < $maxsize";
+
+		// Split multi search terms.
+		$words = explode(' ', $subject);
+		$subq = '';
+		$i = 0;
+		if (count($words) > 0)
+		{
+			foreach ($words as $word)
+			{
+				if ($word != "")
+				{
+					if ($i++ == 0 && (strpos($word, "^") === 0))
+						$subq .= sprintf(" AND subject LIKE %s", $db->escapeString(substr($word, 1)."%"));
+					elseif (substr($word, 0, 2) == '--')
+						$subq .= sprintf(" AND subject NOT LIKE %s", $db->escapeString("%".substr($word, 2)."%"));
+					else
+						$subq .= sprintf(" AND subject LIKE %s", $db->escapeString("%".$word."%"));
+				}
+			}
+		}
+
+		if ($group == 0)
+		{
+			$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT ".$limit);
+			$count = count($tids);
+			$fstr = '';
+			$i = 1;
+			$max = $limit;
+			if ($count > 25)
+				$max = ($limit / 2);
+
+			foreach ($tids as $tid)
+			{
+				$id = $tid["id"];
+				if ($i++ == $count)
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize FROM files_$id WHERE 1=1 %s %s %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d)", $subq, $maxsizes, $minsizes, $ages, $max, $offset);
+				else
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize FROM files_$id WHERE 1=1 %s %s %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d) UNION ", $subq, $maxsizes, $minsizes, $ages, $max, $offset);
+			}
+			return $db->query("SELECT files.*, groups.name, groups.id AS groupid FROM ($fstr) AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT ".$limit);
+		}
+		else
+			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS tsize FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d", $group, $subq, $maxsizes, $minsizes, $ages, $limit, $offset));
 	}
 
 	// Get all files for nzbcontents.
@@ -173,6 +281,37 @@ Class files
 		$db = new DB;
 		$c = $db->queryOneRow(sprintf("SELECT COUNT(*) AS cnt FROM files_%d WHERE chash = %s", $groupid, $db->escapeString($chash)));
 		return $c["cnt"];
+	}
+
+	// Get by chash for api, when no groupid look through all groups.
+	public function getbychash($chash, $groupid)
+	{
+		$db = new DB;
+		if ($groupid == "all")
+		{
+			$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT ".MAX_PERPAGE);
+			$count = count($tids);
+			if ($count == 0)
+				return false;
+			else if ($count === 1)
+				return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, SUM(fsize) AS size FROM files_%d WHERE chash = %s GROUP BY chash", $tids[0]["id"], $db->escapeString($chash)));
+			else
+			{
+				$fstr = '';
+				$i = 1;
+				foreach ($tids as $tid)
+				{
+					$id = $tid["id"];
+					if ($i++ == $count)
+						$fstr .= sprintf("(SELECT subject, chash, groupid, utime, SUM(fsize) AS size FROM files_$id WHERE chash = %s GROUP BY chash)", $db->escapeString($chash));
+					else
+						$fstr .= sprintf("(SELECT subject, chash, groupid, utime, SUM(fsize) AS size FROM files_$id WHERE chash = %s GROUP BY chash) UNION ", $db->escapeString($chash));
+				}
+				return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, size FROM ($fstr) AS files LIMIT 1", $groupid, $db->escapeString($chash)));
+			}
+		}
+		else
+			return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, SUM(fsize) AS size FROM files_%d WHERE chash = %s GROUP BY chash", $groupid, $db->escapeString($chash)));
 	}
 }
 

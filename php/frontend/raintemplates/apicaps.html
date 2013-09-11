@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<caps>
+	<server appversion="0.1" version="0.1" title="{$web_name}" strapline="A basic usenet indexer" email="{$admin_email}" url="http://{$serveraddress}/" image="http://{$logopath}/"/>
+	<limits max="1000000" default="1000000"/>
+
+	<registration available="no" open="yes" />
+	<searching>
+		<search available="yes"/>
+		<tv-search available="no"/>
+		<movie-search available="no"/>
+		<audio-search available="no"/>
+	</searching>
+	<categories></categories>
+	<groups>
+	{loop="groups"}
+		<group id="{$value1.id}" name="{$value1.name}" description="" lastupdate="{$value1.lastdate|utdate}"></group>
+	{/loop}
+	</groups>
+	<genres></genres>
+</caps>

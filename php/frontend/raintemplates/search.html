@@ -1,5 +1,5 @@
 <form action="search.php">
-	<input type="search" name="subject" placeholder="Enter a usenet subject.">Subject.</input>
+	<input type="search" name="subject" placeholder="Enter a usenet subject.">(-- to exclude, ^ to force search from the start of the subject)</input>
 	<br>
 	<input type="search" name="retention" value="0">Max days old. (0 = no limit)</input>
 	<br>
@@ -24,7 +24,7 @@
 		</tr>
 		{loop="filearr"}
 		<tr class="row_{$counter%2+1}">
-			<td><a style="text-decoration: none;" href="browsenzb.php?chash={$value1.chash}&subject={$value1.subject|urlencode}&group={$value1.groupid}">{$value1.subject}</a></td>
+			<td><a style="text-decoration: none;" href="browsenzb.php?chash={$value1.chash}&group={$value1.groupid}&subject={$value1.subject|urlencode}">{$value1.subject}</a></td>
 			<td>{$value1.name|abreplace}</td>
 			<td>
 				{if="$value1.size > 1099511627776"} {$size=$value1.size / 1099511627776}

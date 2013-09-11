@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+	<atom:link href="http://{$serveraddress}/api.php?t=s&amp;q={$query}" rel="self" type="application/rss+xml" />
+	<title>{$web_name}</title>
+	<description>API Search Results</description>
+	<link>http://{$serveraddress}/api.php</link>
+	<webMaster>{$admin_email}</webMaster>
+	{loop="$farr"}
+	<item>
+		<title>{$value1.subject|xml_escape}</title>
+		<description>{$value1.subject|xml_escape}</description>
+		<link>http://{$serveraddress}/browsenzb.php?chash={$value1.chash}&amp;group={$value1.groupid}&amp;subject={$value1.subject|xml_entities}</link>
+		<guid>{$value1.chash}</guid>
+		<pubDate>{$value1.utime|utdate}</pubDate>
+		<enclosure url="http://{$serveraddress}/getnzb.php?identifier={$value1.chash}&amp;subject={$value1.subject|xml_entities}&amp;group={$value1.groupid}&amp;type=multi" length="{$value1.tsize}" type="application/x-nzb" />
+	</item>
+	{/loop}
+</channel>
+</rss>

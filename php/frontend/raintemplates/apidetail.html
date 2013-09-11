@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+	<atom:link href="http://{$serveraddress}/api.php?t=d&amp;id={$query}" rel="self" type="application/rss+xml" />
+	<title>{$web_name}</title>
+	<description>API NZB Detail</description>
+	<link>http://{$serveraddress}/api.php</link>
+	<webMaster>{$admin_email}</webMaster>
+	<item>
+		<title>{$farr.subject|xml_escape}</title>
+		<description>{$farr.subject|xml_escape}</description>
+		<link>http://{$serveraddress}/browsenzb.php?chash={$farr.chash}&amp;group={$farr.groupid}&amp;subject={$farr.subject|xml_entities}</link>
+		<guid>{$farr.chash}</guid>
+		<pubDate>{$farr.utime|utdate}</pubDate>
+		<enclosure url="http://{$serveraddress}/getnzb.php?identifier={$farr.chash}&amp;subject={$farr.subject|xml_entities}&amp;group={$farr.groupid}&amp;type=multi" length="{$farr.size}" type="application/x-nzb" />
+	</item>
+</channel>
+</rss>

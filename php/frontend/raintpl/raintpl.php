@@ -4,6 +4,7 @@ require_once("../config.php");
 require_once("rain.tpl.class.php");
 require_once("functions.php");
 $tpl = new RainTPL();
+$tpl->assign('serveraddress', $_SERVER['SERVER_NAME']);
 raintpl::$tpl_dir = PHP_DIR."/frontend/raintemplates/";
 raintpl::$cache_dir = PHP_DIR."/frontend/raintpl/tmp/";
 raintpl::configure("php_enabled", true );

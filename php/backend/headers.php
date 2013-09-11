@@ -379,13 +379,14 @@ Class headers
 				// Set up the info for inserting into files_groupid table.
 				if(!isset($this->message[$subject]))
 				{
-					$this->message[$subject]['subject'] = $db->escapeString(substr($subject, 0, 255));
+					$mfarr = $matching->main($group["name"], $subject);
+					$this->message[$subject]['subject'] = $db->escapeString(substr($mfarr["subject"], 0, 255));
 					$this->message[$subject]['parts'] = (int)$matches[3];
 					$this->message[$subject]['utime'] = strtotime($msg['Date']);
 					$this->message[$subject]['ltime'] = time();
 					$this->message[$subject]['poster'] = $db->escapeString($msg['From']);
 					$this->message[$subject]['fhash'] = $db->escapeString(sha1($msg['From'].$subject));
-					$this->message[$subject]['chash'] = $db->escapeString(sha1($matching->main($group["name"], $subject)));
+					$this->message[$subject]['chash'] = $db->escapeString(sha1($mfarr["hash"]));
 				}
 
 				// Set up info for the parts_groupid table.

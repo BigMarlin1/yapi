@@ -13,10 +13,10 @@ class nzb
 		switch ($type)
 		{
 			case "single":
-				$files = $db->query(sprintf("SELECT f.*, g.name AS groupname FROM files_%d f LEFT JOIN groups g ON g.id = f.groupid WHERE f.id = %d", $groupid, $identifier)); // Single file.
+				$files = $db->query(sprintf("SELECT f.*, g.name AS groupname FROM files_%d f LEFT JOIN groups g ON g.id = f.groupid WHERE f.id = %d ORDER BY f.subject ASC", $groupid, $identifier)); // Single file.
 				break;
 			case "multi":
-				$files = $db->query(sprintf("SELECT f.*, g.name AS groupname FROM files_%d f LEFT JOIN groups g ON g.id = f.groupid WHERE f.chash = %s", $groupid, $db->escapeString($identifier))); // Collection of files.
+				$files = $db->query(sprintf("SELECT f.*, g.name AS groupname FROM files_%d f LEFT JOIN groups g ON g.id = f.groupid WHERE f.chash = %s ORDER BY f.subject ASC", $groupid, $db->escapeString($identifier))); // Collection of files.
 				break;
 		}
 
@@ -31,7 +31,7 @@ class nzb
 				$nzb .= " <file poster=\"".htmlspecialchars($file["poster"], ENT_QUOTES, 'utf-8')."\" date=\"".$file["utime"]."\" subject=\"".htmlspecialchars($file["subject"], ENT_QUOTES, 'utf-8')." (1/".$file["parts"].")\">\n";
 				$nzb .= "  <groups>\n   <group>".$file["groupname"]."</group>\n  </groups>\n  <segments>\n";
 
-				$parts = $db->query(sprintf("SELECT * FROM parts_%d WHERE fileid = %d", $groupid, $file['id']));
+				$parts = $db->query(sprintf("SELECT * FROM parts_%d WHERE fileid = %d ORDER BY part", $groupid, $file['id']));
 				foreach ($parts as $part)
 				{
 					$nzb .= "   <segment bytes=\"".$part["psize"]."\" number=\"".$part["part"]."\">".htmlspecialchars($part["messid"], ENT_QUOTES, 'utf-8')."</segment>\n";

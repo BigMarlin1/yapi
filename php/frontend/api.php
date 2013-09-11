@@ -6,7 +6,6 @@
 include('raintpl/raintpl.php');
 
 // API functions.
-$function = "s";
 if (isset($_GET["t"]))
 {
 	if ($_GET["t"] == "search" || $_GET["t"] == "s" )
@@ -19,6 +18,29 @@ if (isset($_GET["t"]))
 		$function = "c";
 	else
 		showApiError(202);
+}
+elseif (isset($_GET["h"]))
+{
+	?>
+	<html>
+	<?php include('rainscripts/head.php'); ?>
+	<body>
+		<div id="wrapper">
+			<?php 
+				include('rainscripts/header.php'); 
+				include('rainscripts/nav.php');
+			?>
+			<div id="content">
+				<div id="innercontent">
+					<?php include('rainscripts/apihelp.php'); ?>
+				</div>
+			</div>
+			<?php include('rainscripts/footer.php'); ?>
+		</div>
+	</body>
+	</html>
+	<?php
+	exit();
 }
 else
 	showApiError(200);
@@ -128,7 +150,7 @@ switch ($function)
 	case "c":
 		require_once(PHP_DIR."backend/groups.php");
 		$groups = new groups;
-		$tpl->assign(array("groups" => $groups->getallsortname(), "web_name" => WEB_NAME, "admin_email" => ADMIN_EMAIL, "logopath" => $_SERVER['SERVER_NAME'].'/raintemplates/images/logo.png'));
+		$tpl->assign(array("groups" => $groups->getallsortname(), "web_name" => WEB_NAME, "admin_email" => ADMIN_EMAIL, "logopath" => $string.'/raintemplates/images/logo.png'));
 		header("Content-type: text/xml");
 		$tpl->draw('apicaps');
 		break;
@@ -143,28 +165,19 @@ function showApiError($errcode=900, $errtext="")
 	switch ($errcode)
 	{
 		case 200:
-			$errtext = "Missing parameter";
-			break;
-		case 201:
-			$errtext = "Incorrect parameter";
+			$errtext = "Missing base parameter for the API (h or t is valid)";
 			break;
 		case 202:
-			$errtext = "No such function";
+			$errtext = "No such function, please see the API Help page";
 			break;
 		case 300:
-			$errtext = "No such item";
+			$errtext = "No collection exists with this hash";
 			break;
 		case 301:
-			$errtext = "No results found";
+			$errtext = "No collections found";
 			break;
 		case 302:
 			$errtext = "You must supply a query for your search";
-			break;
-		case 500:
-			$errtext = "Request limit reached";
-			break;
-		case 501:
-			$errtext = "Download limit reached";
 			break;
 		default:
 			$errtext = "Unknown error";

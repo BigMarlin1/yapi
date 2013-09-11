@@ -284,7 +284,7 @@ Class files
 	}
 
 	// Get by chash for api, when no groupid look through all groups.
-	public function getbychash($chash, $groupid)
+	public function getbychash($chash, $groupname)
 	{
 		$db = new DB;
 		if ($groupid == "all")
@@ -311,7 +311,13 @@ Class files
 			}
 		}
 		else
-			return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, SUM(fsize) AS size FROM files_%d WHERE chash = %s GROUP BY chash", $groupid, $db->escapeString($chash)));
+		{
+			$gq = $db->queryOneRow(sprintf("SELECT id FROM groups WHERE name = %s", $db->escapeString($groupname)));
+			if ($qg == false)
+				return false;
+
+			return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, SUM(fsize) AS size FROM files_%d WHERE chash = %s GROUP BY chash", $gq["id"], $db->escapeString($chash)));
+		}
 	}
 }
 

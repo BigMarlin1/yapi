@@ -1,0 +1,3 @@
+<?php
+$tpl->draw("apihelp");
+?>

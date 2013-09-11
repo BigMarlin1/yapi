@@ -12,6 +12,14 @@ Class groups
 		return $garr["name"];
 	}
 
+	// Return groupid for the group name.
+	public function getid($gname)
+	{
+		$db = new DB;
+		$garr = $db->queryOneRow(sprintf("SELECT id FROM groups WHERE name = %s", $db->escapeString($gname)));
+		return $garr["id"];
+	}
+
 	// Return row for a group, or all groups if active.
 	public function getactive($type, $name = '')
 	{

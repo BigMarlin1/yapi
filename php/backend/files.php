@@ -4,15 +4,21 @@ require_once(PHP_DIR."/backend/db.php");
 
 Class files
 {
-	// Return rows up to MAX_PERPAGE. Cached with memcache medium expiry.
-	public function getallforgroup($groupid, $offset)
+	// For browsegroup and RSS. Cached with memcache medium expiry.
+	public function getallforgroup($groupid, $offset, $limit='')
 	{
 		$db = new DB;
-		return $db->query(sprintf("SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_%d GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d", $groupid, MAX_PERPAGE, $offset), true, CACHE_MEXPIRY);
+
+		$maxperpage = MAX_PERPAGE;
+		// For RSS.
+		if ($limit != '')
+			$maxperpage = $limit;
+
+		return $db->query(sprintf("SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, groups.name, groups.id AS groupid FROM files_%d INNER JOIN groups ON groups.id = groupid GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d", $groupid, $maxperpage, $offset), true, CACHE_MEXPIRY);
 	}
 
-	// Get count of all files. Cached with memcache long expiry.
-	public function getcount($groupid)
+	// Get count of all files for browsegroup and RSS. Cached with memcache long expiry.
+	public function getcount($groupid, $limit='')
 	{
 		$db = new DB;
 		$cnt = $db->query(sprintf("SELECT COUNT(DISTINCT(chash)) AS c FROM files_%d", $groupid), true);
@@ -26,8 +32,8 @@ Class files
 		return $db->queryOneRow(sprintf("SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_%d WHERE chash = %s GROUP BY chash", $groupid, $db->escapeString($chash)));
 	}
 
-	// Get for browse page, need to select from all groups. Cache with memcache long.
-	public function getforbrowse($offset)
+	// Get for browse page, need to select from all groups. Also used for RSS. Cache with memcache long.
+	public function getforbrowse($offset, $limit='')
 	{
 		$db = new DB;
 		$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT ".MAX_PERPAGE);
@@ -36,19 +42,25 @@ Class files
 		{
 			$fstr = '';
 			$i = 1;
-			$max = MAX_PERPAGE;
+
+			$maxperpage = MAX_PERPAGE;
+			// For RSS.
+			if ($limit != '')
+				$maxperpage = $limit;
+
+			$max = $maxperpage;
 			if ($count > 25)
-				$max = (MAX_PERPAGE / 2);
+				$max = ($maxperpage / 2);
 
 			foreach ($tids as $tid)
 			{
 				$id = $tid["id"];
 				if ($i++ == $count)
-					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_$id GROUP BY chash ORDER BY utime DESC LIMIT $max OFFSET $offset)";
+					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_{$id} GROUP BY chash ORDER BY utime DESC LIMIT {$max} OFFSET {$offset})";
 				else
-					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_$id GROUP BY chash ORDER BY utime DESC LIMIT $max OFFSET $offset) UNION ";
+					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_{$id} GROUP BY chash ORDER BY utime DESC LIMIT {$max} OFFSET {$offset}) UNION ";
 			}
-			return $db->query("SELECT files.*, groups.name, groups.id AS groupid FROM ($fstr) AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT ".MAX_PERPAGE, true);
+			return $db->query("SELECT files.*, groups.name, groups.id AS groupid FROM ({$fstr}) AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT {$maxperpage}", true);
 		}
 		else
 			return false;

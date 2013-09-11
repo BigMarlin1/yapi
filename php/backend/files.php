@@ -279,7 +279,7 @@ Class files
 	public function getforbnzbcontents($chash, $groupid, $offset)
 	{
 		$db = new DB;
-		return $db->query(sprintf("SELECT * FROM files_%d WHERE chash = %s ORDER BY subject ASC LIMIT %d OFFSET %d", $groupid, $db->escapeString($chash), MAX_PERPAGE, $offset), true);
+		return $db->query(sprintf("SELECT * FROM files_%d WHERE chash = %s ORDER BY origsubject ASC LIMIT %d OFFSET %d", $groupid, $db->escapeString($chash), MAX_PERPAGE, $offset), true);
 	}
 
 	// Count for nzbcontents pagination.

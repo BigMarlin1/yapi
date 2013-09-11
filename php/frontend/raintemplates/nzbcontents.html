@@ -8,7 +8,7 @@
 	</tr>
 	{loop="contents"}
 	<tr class="row_{$counter%2+1}">
-		<td>{$value1.subject}</td>
+		<td>{$value1.origsubject}</td>
 		<td>
 			{if="$value1.fsize > 1099511627776"} {$size=$value1.fsize / 1099511627776}
 				{$size|round}TiB

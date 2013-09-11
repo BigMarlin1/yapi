@@ -29,20 +29,20 @@ class matchfiles
 
 		require_once(PHP_DIR."/backend/db.php");
 		$db = new DB;
-		$files = $db->query(sprintf("SELECT subject, id, chash FROM files_%d", $group["id"]));
+		$files = $db->query(sprintf("SELECT origsubject, subject, id, chash FROM files_%d", $group["id"]));
 		if (count($files) > 0)
 		{
 			echo "Trying to rematch ".count($files)." files. File match = +\n";
 			$matched = $total = 0;
 			foreach ($files as $file)
 			{
-				$match = $this->main($group["name"], $file["subject"]);
-				if ($match != $file["subject"])
+				$matches = $this->main($group["name"], $file["origsubject"]);
+				if ($matches["subject"] != $file["subject"])
 				{
-					$chash = sha1($match);
+					$chash = sha1($matches["hash"]);
 					if ($chash != $file["chash"])
 					{
-						$db->queryExec(sprintf("UPDATE files_%d SET chash = %s WHERE id = %d", $group["id"], $db->escapeString($chash), $file["id"]));
+						$db->queryExec(sprintf("UPDATE files_%d SET chash = %s, subject = %s WHERE id = %d", $group["id"], $db->escapeString($chash), $db->escapeString($matches["subject"]), $file["id"]));
 						$matched++;
 						if ($matched %100 == 0)
 							echo "+";
@@ -65,7 +65,7 @@ class matchfiles
 	// Generic function.
 	public function generic($subject)
 	{
-		$subject = preg_replace('/[\[( ]\d+\/\d+[\]) ]/', '', $subject);
+		$subject = preg_replace('/[\[( ]\d+(\/| of )\d+[\]) ]/', '', $subject);
 		$subject = preg_replace('/([-_](proof|sample|thumbs?))*(\.part\d*)?(\.r(ar|\d+))?(\d{1,3}\.rev"|\.vol.+?"|\.[A-Za-z0-9]{2,4}"|")/', '', $subject);
 		return array("hash" => $subject, "subject" => $subject);
 	}

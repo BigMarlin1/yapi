@@ -41,6 +41,14 @@ apc for speeding up execution of php scripts.
 
 
 
+Recommended mysql(my.ini / my.cnf) changes.
+innodb_file_format = Barracuda
+innodb_flush_log_at_trx_commit = 0
+innodb_file_per_table
+(for more info: http://stackoverflow.com/a/3456885 and http://stackoverflow.com/a/4056261)
+(My my.cnf file is inside the sql folder, use it as a guide only, read the mysql documentation to see what each setting does.)
+
+
 
 General installation:
 Install the above requirements.

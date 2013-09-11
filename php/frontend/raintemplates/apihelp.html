@@ -9,13 +9,13 @@
 		<br /><u><b>Extended attributes:</b></u> ?t=attrs / ?extended=1
 	</p>
 <h3>Things that are the same.</h3>
-	<p><u><b>Capabilities:</b></u> <a href="api.php?t=caps">http://{$serveraddress}/?t=caps</a> | Displays the capabilities of the API.
+	<p><u><b>Capabilities:</b></u> <a href="api.php?t=caps">http://{$serveraddress}/api.php?t=caps</a> | Displays the capabilities of the API.
 		<br /><u><b>Get:</b></u> <a href="api.php?t=get&id=c990511d2b41d7c0c48996da7dabd179582e9d45">http://{$serveraddress}/api.php?t=get&id=SHA1HASH</a> | Gets an NZB file for the collection using its hash, optionally pass the groupid to speed it up (&gid=2)
-		<br /><u><b>Details:</b></u> <a href="api.php?t=details&id=c990511d2b41d7c0c48996da7dabd179582e9d45">http://{$serveraddress}/?t=details&id=SHA1HASH</a> | Loads the page for the collection,  optionally pass the groupid to speed it up (&gid=2)
+		<br /><u><b>Details:</b></u> <a href="api.php?t=details&id=c990511d2b41d7c0c48996da7dabd179582e9d45">http://{$serveraddress}/api.php?t=details&id=SHA1HASH</a> | Loads the page for the collection,  optionally pass the groupid to speed it up (&gid=2)
 		<br /><u><b>Output format:</b></u> &o=xml | &o=json returns XML or JSON, if you don't specify it defaults to xml.
 	</p>
 <h3>Things that are changed.</h3>
-	<p><u><b>Search:</b></u> <a href="api.php?t=search&q=linux">http://{$serveraddress}/?t=search&q=linux</a> | The &sort=size_asc will be added, it's not added yet.
-		<br />minsize | maxsize | group are identical : &group=a.b.multimedia&minsize=0&maxsize=734003200
+	<p><u><b>Search:</b></u> <a href="api.php?t=search&q=linux">http://{$serveraddress}/api.php?t=search&q=linux</a> | The &sort=size_asc will be added, it's not added yet.
+		<br />minsize | maxsize | group are identical : <a href="api.php?t=search&q=linux&group=a.b.multimedia&minsize=0&maxsize=734003200">http://{$serveraddress}/api.php?t=search&q=linux&group=a.b.multimedia&minsize=0&maxsize=734003200</a>
 		<br />There is no categories in this site so it's not present.
 	</p>

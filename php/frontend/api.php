@@ -72,7 +72,7 @@ switch ($function)
 		if (isset($_GET["offset"]) && is_numeric($_GET["offset"]))
 			$offset = $_GET["offset"];
 
-		if (isset($_GET["group"]) && strlen($_GET["group"] > 3))
+		if (isset($_GET["group"]))
 			$group = $_GET["group"];
 
 		if (isset($_GET["minsize"]) && is_numeric($_GET["minsize"]))

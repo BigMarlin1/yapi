@@ -218,11 +218,12 @@ Class files
 		if ($age > 0 && is_numeric($age))
 			$ages = "AND utime > ".(time() - ($age * 86400));
 
-		if ($minsize > 0 && is_numeric($minsize))
-			$minsizes = "AND size > $minsize";
-
-		if ($maxsize > 0 && is_numeric($maxsize))
-			$maxsizes = "AND size < $maxsize";
+		if (is_numeric($minsize))
+		{
+			$minsizes = "HAVING SUM(fsize) > $minsize";
+			if ($maxsize > 0 && is_numeric($maxsize))
+				$maxsizes = "AND SUM(fsize) < $maxsize";
+		}
 
 		// Split multi search terms.
 		$words = explode(' ', $subject);
@@ -244,7 +245,7 @@ Class files
 			}
 		}
 
-		if ($group == 0)
+		if (is_numeric($group) && $group == 0)
 		{
 			$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT ".$limit);
 			$count = count($tids);
@@ -258,14 +259,20 @@ Class files
 			{
 				$id = $tid["id"];
 				if ($i++ == $count)
-					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize FROM files_$id WHERE 1=1 %s %s %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d)", $subq, $maxsizes, $minsizes, $ages, $max, $offset);
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize FROM files_$id WHERE 1=1 %s %s GROUP BY chash %s %s ORDER BY utime DESC LIMIT %d OFFSET %d)", $subq, $ages, $minsizes, $maxsizes, $max, $offset);
 				else
-					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize FROM files_$id WHERE 1=1 %s %s %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d) UNION ", $subq, $maxsizes, $minsizes, $ages, $max, $offset);
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize FROM files_$id WHERE 1=1 %s %s GROUP BY chash %s ORDER BY utime DESC LIMIT %d OFFSET %d) UNION ", $subq, $ages, $minsizes, $maxsizes, $max, $offset);
 			}
 			return $db->query("SELECT files.*, groups.name, groups.id AS groupid FROM ($fstr) AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT ".$limit);
 		}
 		else
-			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS tsize FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d", $group, $subq, $maxsizes, $minsizes, $ages, $limit, $offset));
+		{
+			$gq = $db->queryOneRow(sprintf("SELECT id FROM groups WHERE name = %s AND tstatus = 1", $db->escapeString($group)));
+			if ($gq === false)
+				return array();
+
+			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS tsize FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s GROUP BY chash %s %s ORDER BY utime DESC LIMIT %d OFFSET %d", $gq["id"], $subq, $ages, $minsizes, $maxsizes, $limit, $offset));
+		}
 	}
 
 	// Get all files for nzbcontents.

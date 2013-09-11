@@ -381,6 +381,7 @@ Class headers
 				{
 					$mfarr = $matching->main($group["name"], $subject);
 					$this->message[$subject]['subject'] = $db->escapeString(substr($mfarr["subject"], 0, 255));
+					$this->message[$subject]['origsubject'] = $db->escapeString(substr($subject, 0, 255));
 					$this->message[$subject]['parts'] = (int)$matches[3];
 					$this->message[$subject]['utime'] = strtotime($msg['Date']);
 					$this->message[$subject]['ltime'] = time();
@@ -404,7 +405,7 @@ Class headers
 					$fchk = $db->queryOneRow(sprintf("SELECT id FROM %s WHERE fhash = %s", $group["ftname"], $db->escapeString($file["fhash"])));
 					if ($fchk === false)
 					{
-						$fileid = $db->queryInsert(sprintf("INSERT INTO %s (subject, parts, utime, ltime, poster, fhash, chash, groupid, fsize, partsa) VALUES (%s, %d, %d, %d, %s, %s, %s, %d, 0, 0)", $group["ftname"], $file["subject"], $file["parts"], $file["utime"], $file["ltime"], $file["poster"], $file["fhash"], $file["chash"], $group["id"]));
+						$fileid = $db->queryInsert(sprintf("INSERT INTO %s (subject, origsubject, parts, utime, ltime, poster, fhash, chash, groupid, fsize, partsa) VALUES (%s, %s, %d, %d, %d, %s, %s, %s, %d, 0, 0)", $group["ftname"], $file["subject"], $file["origsubject"], $file["parts"], $file["utime"], $file["ltime"], $file["poster"], $file["fhash"], $file["chash"], $group["id"]));
 						if ($fileid === false)
 							continue;
 					}

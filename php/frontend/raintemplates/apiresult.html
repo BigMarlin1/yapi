@@ -8,7 +8,7 @@
 	<webMaster>{$admin_email}</webMaster>
 	{loop="$farr"}
 	<item>
-		<title>{$value1.subject|xml_escape}</title>
+		<title>{$value1.origsubject|xml_escape}</title>
 		<description>{$value1.subject|xml_escape}</description>
 		<link>http://{$serveraddress}/browsenzb.php?chash={$value1.chash}&amp;group={$value1.groupid}&amp;subject={$value1.subject|xml_entities}</link>
 		<guid>{$value1.chash}</guid>

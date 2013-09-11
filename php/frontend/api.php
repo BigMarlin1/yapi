@@ -65,7 +65,7 @@ switch ($function)
 		if (isset($_GET["limit"]) && is_numeric($_GET["limit"]) && $_GET["limit"] < 100)
 			$limit = $_GET["limit"];
 
-		$group = $minsize = $maxsize = $maxage = $offset = 0;
+		$group = $minsize = $maxsize = $maxage = $offset = $sargs = 0;
 		if (isset($_GET["maxage"]) && $_GET["maxage"] != "" && is_numeric($_GET["maxage"]))
 			$maxage = $_GET["maxage"];
 
@@ -73,7 +73,10 @@ switch ($function)
 			$offset = $_GET["offset"];
 
 		if (isset($_GET["group"]))
+		{
 			$group = $_GET["group"];
+			$group = str_replace('a.b', 'alt.binaries', $group);
+		}
 
 		if (isset($_GET["minsize"]) && is_numeric($_GET["minsize"]))
 			$minsize = $_GET["minsize"];
@@ -81,9 +84,12 @@ switch ($function)
 		if (isset($_GET["maxsize"]) && is_numeric($_GET["maxsize"]))
 			$maxsize = $_GET["maxsize"];
 
+		if (isset($_GET["sort"]))
+			$sargs = explode('_', $_GET["sort"]);
+
 		require_once(PHP_DIR."backend/files.php");
 		$files = new files;
-		$farr = $files->apisearch($_GET["q"], $maxage, $group, $offset, $limit, $minsize, $maxsize);
+		$farr = $files->apisearch($_GET["q"], $maxage, $group, $offset, $limit, $minsize, $maxsize, $sargs);
 		$fcount = count($farr);
 		if ($fcount === 0)
 			showApiError(301);

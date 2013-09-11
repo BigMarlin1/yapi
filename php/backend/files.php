@@ -210,13 +210,43 @@ Class files
 	}
 
 	// Search, for API.
-	public function apisearch($subject, $age, $group, $offset, $limit, $minsize, $maxsize)
+	public function apisearch($subject, $age, $group, $offset, $limit, $minsize, $maxsize, $sargs)
 	{
 		$db = new DB;
 		$ages = $minsizes = $maxsizes = '';
 		// Convert age to seconds.
 		if ($age > 0 && is_numeric($age))
 			$ages = "AND utime > ".(time() - ($age * 86400));
+
+		// Sorting.
+		$sort = 'ORDER BY utime DESC';
+		if ($sargs != 0)
+		{
+			if (count($sargs == 2))
+			{
+				switch($sargs[0])
+				{
+					case "name":
+						$farg = "subject";
+						break;
+					case "size":
+						$farg = "tsize";
+						break;
+					case "files":
+						$farg = "tfiles";
+						break;
+					case "date":
+						$farg = "utime";
+						break;
+					case "poster":
+						$farg = "poster";
+						break;
+					default:
+						$farg = "utime";
+				}
+				$sort = 'ORDER BY '.$farg.' '.$sargs[1];
+			}
+		}
 
 		if (is_numeric($minsize))
 		{
@@ -259,11 +289,11 @@ Class files
 			{
 				$id = $tid["id"];
 				if ($i++ == $count)
-					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize FROM files_$id WHERE 1=1 %s %s GROUP BY chash %s %s ORDER BY utime DESC LIMIT %d OFFSET %d)", $subq, $ages, $minsizes, $maxsizes, $max, $offset);
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize, SUM(partsa) AS tfiles FROM files_$id WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d)", $subq, $ages, $minsizes, $maxsizes, $sort, $max, $offset);
 				else
-					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize FROM files_$id WHERE 1=1 %s %s GROUP BY chash %s ORDER BY utime DESC LIMIT %d OFFSET %d) UNION ", $subq, $ages, $minsizes, $maxsizes, $max, $offset);
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize, SUM(partsa) AS tfiles FROM files_$id WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d) UNION ", $subq, $ages, $minsizes, $maxsizes, $sort, $max, $offset);
 			}
-			return $db->query("SELECT files.*, groups.name, groups.id AS groupid FROM ($fstr) AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT ".$limit);
+			return $db->query("SELECT files.*, groups.name, groups.id, tsize, tfiles AS groupid FROM ({$fstr}) AS files INNER JOIN groups ON groups.id = files.groupid {$sort} LIMIT {$limit}");
 		}
 		else
 		{
@@ -271,7 +301,7 @@ Class files
 			if ($gq === false)
 				return array();
 
-			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS tsize FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s GROUP BY chash %s %s ORDER BY utime DESC LIMIT %d OFFSET %d", $gq["id"], $subq, $ages, $minsizes, $maxsizes, $limit, $offset));
+			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS tsize FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d", $gq["id"], $subq, $ages, $minsizes, $maxsizes, $sort, $limit, $offset));
 		}
 	}
 

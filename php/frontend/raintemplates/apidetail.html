@@ -7,7 +7,7 @@
 	<link>http://{$serveraddress}/api.php</link>
 	<webMaster>{$admin_email}</webMaster>
 	<item>
-		<title>{$farr.subject|xml_escape}</title>
+		<title>{$farr.origsubject|xml_escape}</title>
 		<description>{$farr.subject|xml_escape}</description>
 		<link>http://{$serveraddress}/browsenzb.php?chash={$farr.chash}&amp;group={$farr.groupid}&amp;subject={$farr.subject|xml_entities}</link>
 		<guid>{$farr.chash}</guid>

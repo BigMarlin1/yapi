@@ -381,7 +381,7 @@ Class headers
 				{
 					$mfarr = $matching->main($group["name"], $subject);
 					$this->message[$subject]['subject'] = $db->escapeString(substr($mfarr["subject"], 0, 500));
-					$this->message[$subject]['origsubject'] = $db->escapeString(substr($subject, 0, 500));
+					$this->message[$subject]['origsubject'] = $db->escapeString(substr($msg['Subject'], 0, 500));
 					$this->message[$subject]['parts'] = (int)$matches[3];
 					$this->message[$subject]['utime'] = strtotime($msg['Date']);
 					$this->message[$subject]['ltime'] = time();

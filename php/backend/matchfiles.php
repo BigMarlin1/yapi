@@ -36,7 +36,7 @@ class matchfiles
 			$matched = $unmatched = 0;
 			foreach ($files as $file)
 			{
-				$matches = $this->main($group["name"], $file["origsubject"]);
+				$matches = $this->main($group["name"], preg_replace('/\s*\(\d+\/\d+\)$/', '', $file["origsubject"]));
 				if ($matches["subject"] != $file["subject"] || $force === true)
 				{
 					$chash = sha1($matches["hash"]);

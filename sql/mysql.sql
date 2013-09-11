@@ -37,9 +37,13 @@ CREATE TABLE files
 (
 	/* 4 billion files per group should be good enough */
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
+	/* id the group */
 	groupid MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
+	/* subject modified by regex */
 	subject VARCHAR(500) NOT NULL DEFAULT '',
+	/* original subject without ending (parts) */
 	origsubject VARCHAR(500) NOT NULL DEFAULT '',
+	/* poster of the article */
 	poster VARCHAR(255) NOT NULL DEFAULT '',
 	/* the size of every part  combined in bytes */
 	fsize BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -55,13 +59,19 @@ CREATE TABLE files
 	chash VARCHAR(64) NOT NULL DEFAULT '0',
 	/* the hash to determine if we already inserted the subject or not */
 	fhash VARCHAR(64) NOT NULL DEFAULT '0',
+	/* wether we have an NFO or not for this file */
+	nstatus TINYINT(1) SIGNED NOT NULL DEFAULT 0,
+	/* wether this file is passworded or not */
+	pstatus TINYINT(1) SIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY (id),
 	KEY poster (poster),
 	KEY utime (utime),
 	KEY ltime (ltime),
 	KEY groupid (groupid),
 	KEY chash (chash),
-	KEY fhash (fhash)
+	KEY fhash (fhash),
+	KEY nstatus (nstatus),
+	KEY pstatus (pstatus)
 ) ENGINE=INNODB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci AUTO_INCREMENT=1;
 
 /* This will only be used as a template, when a new group is started the table will be copied to parts_groupid */

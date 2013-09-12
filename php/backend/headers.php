@@ -242,7 +242,7 @@ Class headers
 
 		if ($firstart == 0)
 		{
-			if ($this->echov)
+			if ($this->vecho)
 				echo "You can not backfill group ".$group["name"]." until you run update_headers.php\n";
 			return false;
 		}
@@ -413,7 +413,7 @@ Class headers
 
 			$provider = 0;
 			if ($this->alternate == true)
-				$provier = 1;
+				$provider = 1;
 
 			// Loop over the headers, insert into DB.
 			foreach ($msgs as $msg)

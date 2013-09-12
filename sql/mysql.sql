@@ -102,7 +102,8 @@ CREATE TABLE parts
 	provider TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY (id),
 	KEY fileid (fileid),
-	KEY anumber (anumber)
+	KEY anumber (anumber),
+	UNIQUE messid (messid)
 ) ENGINE=INNODB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci AUTO_INCREMENT=1;
 
 DROP TABLE IF EXISTS filenfo;

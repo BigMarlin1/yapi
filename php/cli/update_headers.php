@@ -14,10 +14,9 @@ if ($argc === 2 || !isset($argv[1]) || !isset($argv[2]))
 if (strlen($argv[1]) < 3 && ($argv[2] != "false" || $argv[2] != "true"))
 	exit($e);
 
+$a = false;
 if ($argv[2] == "true")
 	$a = true;
-else 
-	$a = false;
 
 $h = new headers(true);
 $h->main($argv[1], "forward", '', $a);

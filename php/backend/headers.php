@@ -484,10 +484,8 @@ Class headers
 					$pquery = sprintf("INSERT IGNORE INTO %s (part, fileid, messid, anumber, psize, provider) ", $group["ptname"]);
 					$first = false;
 					$pvalues = array();
-					$filesize = $partsactual = 0;
 					foreach ($file['part'] as $insprep)
 					{
-						$filesize += $insprep['psize'];
 						if ($first === false)
 						{
 							$pquery .= " VALUES(?,?,?,?,?,?)";
@@ -497,19 +495,26 @@ Class headers
 							$pquery .= ",(?,?,?,?,?,?)";
 
 						$pvalues = array_merge($pvalues, array_values(array($insprep['part'], $fileid, $insprep['messid'], $insprep['anumber'], $insprep['psize'], $provider)));
-						$partsactual++;
-						$done++;
 					}
-					// Update filesize / parts.
-					if ($filesize > 0 && $partsactual > 0)
-						$db->queryExec(sprintf("UPDATE %s SET fsize = fsize + %d, partsa = partsa + %d WHERE id = %d", $group["ftname"], $filesize, $partsactual, $fileid));
-					
+
 					$ipstmt = $db->Prepare($pquery);
 					try {
 						$ipstmt->execute($pvalues);
 					} catch (PDOException $e) {
 						echo $e->getMessage()."\n";
 					}
+
+					$curdone = 0;
+					$curdone = $ipstmt->rowCount();
+					$done += $curdone;
+					// Update filesize / parts.
+					if ($curdone > 0)
+					{
+						// Not the best way to get, but it's good enough I guess.
+						$parr = $db->queryOneRow(sprintf("SELECT SUM(psize) AS size, COUNT(c) AS parts FROM (SELECT psize, id AS c FROM %s WHERE fileid = %d ORDER BY id DESC LIMIT %d) AS sub", $group["ptname"], $fileid, $curdone));
+						$db->queryExec(sprintf("UPDATE %s SET fsize = fsize + %d, partsa = partsa + %d WHERE id = %d", $group["ftname"], $parr["size"], $parr["parts"], $fileid));
+					}
+
 					$db->Commit();
 				}
 

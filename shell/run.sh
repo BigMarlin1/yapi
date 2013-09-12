@@ -9,7 +9,7 @@ export sleep="240"
 while :
 do
 	cd $cli_dir
-	$php $cli_dir/update_headers.php all
+	$php $cli_dir/update_headers.php all false
 
 echo "Sleeping for $sleep seconds."
 sleep  $sleep

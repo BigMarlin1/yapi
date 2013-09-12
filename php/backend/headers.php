@@ -504,18 +504,19 @@ Class headers
 						echo $e->getMessage()."\n";
 					}
 
-					$curdone = 0;
 					$curdone = $ipstmt->rowCount();
 					$done += $curdone;
+					$db->Commit();
+
 					// Update filesize / parts.
 					if ($curdone > 0)
 					{
 						// Not the best way to get, but it's good enough I guess.
-						$parr = $db->queryOneRow(sprintf("SELECT SUM(psize) AS size, COUNT(c) AS parts FROM (SELECT psize, id AS c FROM %s WHERE fileid = %d ORDER BY id DESC LIMIT %d) AS sub", $group["ptname"], $fileid, $curdone));
-						$db->queryExec(sprintf("UPDATE %s SET fsize = fsize + %d, partsa = partsa + %d WHERE id = %d", $group["ftname"], $parr["size"], $parr["parts"], $fileid));
+						$parr = $db->queryOneRow(sprintf("SELECT SUM(psize) AS size, COUNT(c) AS parts FROM (SELECT psize, id AS c FROM %s WHERE fileid = %d AND provider = %d ORDER BY id DESC LIMIT %d) AS sub", $group["ptname"], $fileid, $provider, $curdone));
+						if ($parr !== false)
+							$db->queryExec(sprintf("UPDATE %s SET fsize = fsize + %d, partsa = partsa + %d WHERE id = %d", $group["ftname"], $parr["size"], $parr["parts"], $fileid));
 					}
 
-					$db->Commit();
 				}
 
 				if ($done > 0)
@@ -536,7 +537,11 @@ Class headers
 					return true;
 				}
 				else
+				{
+					if ($this->vecho)
+						echo "Received (in ".substr($uend - $ustart, 0, 4)." secs) ".(count($msgsreceived) - 1)." headers of ".($newest-$oldest).", ".count($msgsignored)." were not yEnc so ignored, no articles were inserted (if you have another NNTP provider, it might have inserted them before).\n";
 					return false;
+				}
 			}
 			// No messages to process.
 			else

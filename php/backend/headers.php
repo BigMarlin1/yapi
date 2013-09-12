@@ -469,7 +469,7 @@ Class headers
 				// Loop messages, insert files, use fileid when inserting parts.
 				foreach ($this->message as $subject => $file)
 				{
-					$fchk = $db->queryOneRow(sprintf("SELECT id FROM %s WHERE fhash = %s", $group["ftname"], $db->escapeString($file["fhash"])));
+					$fchk = $db->queryOneRow(sprintf("SELECT id FROM %s WHERE fhash = %s", $group["ftname"], $file["fhash"]));
 					if ($fchk === false)
 					{
 						$fileid = $db->queryInsert(sprintf("INSERT INTO %s (subject, origsubject, parts, utime, ltime, poster, fhash, chash, groupid, fsize, partsa) VALUES (%s, %s, %d, %d, %d, %s, %s, %s, %d, 0, 0)", $group["ftname"], $file["subject"], $file["origsubject"], $file["parts"], $file["utime"], $file["ltime"], $file["poster"], $file["fhash"], $file["chash"], $group["id"]));

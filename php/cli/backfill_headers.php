@@ -13,7 +13,7 @@ if (!isset($argv[1]) || !isset($argv[2]) || !isset($argv[3]))
 	exit($e);
 if(strlen($argv[1]) < 2 || !is_numeric($argv[2]))
 	exit($e);
-if ($argv[3] != "true" || $argv[3] != "false")
+if (strlen($argv[3]) < 4)
 	exit($e);
 
 $a = false;

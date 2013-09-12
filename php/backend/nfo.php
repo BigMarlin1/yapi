@@ -117,6 +117,13 @@ Class nfo
 		}
 
 		$part = $db->queryOneRow(sprintf("SELECT messid FROM parts_%d WHERE fileid = %d LIMIT 1", $group["id"], $file["id"]));
+		if ($part === false)
+		{
+			if ($this->echov)
+				echo "-";
+			$this->increment($file["id"], $group["id"]);
+			return 0;
+		}
 
 		// Download the article.
 		$pnfo = $nntp->getMessage($group["name"], $part["messid"]);

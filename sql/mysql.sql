@@ -37,11 +37,11 @@ CREATE TABLE files
 (
 	/* 4 billion files per group should be good enough */
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
-	/* id the group */
+	/* id of the group */
 	groupid MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
 	/* subject modified by regex */
 	subject VARCHAR(500) NOT NULL DEFAULT '',
-	/* original subject without ending (parts) */
+	/* original subject */
 	origsubject VARCHAR(500) NOT NULL DEFAULT '',
 	/* poster of the article */
 	poster VARCHAR(255) NOT NULL DEFAULT '',
@@ -93,4 +93,17 @@ CREATE TABLE parts
 	PRIMARY KEY (id),
 	KEY fileid (fileid),
 	KEY anumber (anumber)
+) ENGINE=INNODB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci AUTO_INCREMENT=1;
+
+DROP TABLE IF EXISTS filenfo;
+
+CREATE TABLE filenfo
+(
+	id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+	/* hash from the files table */
+	fhash VARCHAR(64) NOT NULL DEFAULT '0',
+	/* nfo file, compressed */
+	nfo BLOB NULL DEFAULT NULL,
+	PRIMARY KEY (id),
+	KEY fhash (fhash)
 ) ENGINE=INNODB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci AUTO_INCREMENT=1;

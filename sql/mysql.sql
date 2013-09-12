@@ -14,6 +14,14 @@ CREATE TABLE groups
 	firstart BIGINT UNSIGNED NOT NULL DEFAULT 0,
 	/* article number for the newest article */
 	lastart BIGINT UNSIGNED NOT NULL DEFAULT 0,
+	/* unixdate of the oldest article 2nd provider */
+	firstdatea INT(8) UNSIGNED NOT NULL DEFAULT 0,
+	/* unixdate of the newest article 2nd provider */
+	lastdatea INT(8) UNSIGNED NOT NULL DEFAULT 0,
+	/* article number for the oldest article 2nd provider */
+	firstarta BIGINT UNSIGNED NOT NULL DEFAULT 0,
+	/* article number for the newest article 2nd provider */
+	lastarta BIGINT UNSIGNED NOT NULL DEFAULT 0,
 	/* if the group is active for downloading new headers */
 	factive TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
 	/* if the group is active for backfilling old headers */
@@ -90,6 +98,8 @@ CREATE TABLE parts
 	anumber BIGINT UNSIGNED NOT NULL DEFAULT 0,
 	/* the size in bytes of the part */
 	psize MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
+	/* the nntp provider */
+	provider TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY (id),
 	KEY fileid (fileid),
 	KEY anumber (anumber)

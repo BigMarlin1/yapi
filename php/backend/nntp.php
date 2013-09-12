@@ -59,6 +59,58 @@ class Nntp extends Net_NNTP_Client
 		}
 	}
 
+	// Make a NNTP connection to the alternate NNTP server.
+	public function doConnectA($compression = true)
+	{
+		if ($this->_isConnected())
+			return true;
+
+		$enc = $ret = $ret2 = $connected = false;
+		if (defined("NNTPA_SSLENABLED") && NNTPA_SSLENABLED == true)
+			$enc = 'ssl';
+
+		$retries = 5;
+		while($retries > 0)
+		{
+			usleep(10000);
+			$authent = false;
+			$retries--;
+
+			if ($connected === false)
+				$ret = $this->connect(NNTPA_SERVER, $enc, NNTPA_PORT, NNTPA_TIMEOUT);
+
+			if(PEAR::isError($ret))
+			{
+				if ($retries < 1)
+					echo "Cannot connect to server ".NNTPA_SERVER.(!$enc ? " (nonssl) " : "(ssl) ").": (".$ret->getMessage().")\n";
+			}
+			else
+				$connected = true;
+
+			if($connected === true && $authent === false && defined("NNTPA_USERNAME") && NNTPA_USERNAME != "")
+			{
+				$ret2 = $this->authenticate(NNTPA_USERNAME, NNTPA_PASSWORD);
+				if(PEAR::isError($ret2))
+				{
+					if ($retries < 1)
+						echo "Cannot authenticate to server ".NNTPA_SERVER.(!$enc ? " (nonssl) " : " (ssl) ")." - ".NNTPA_USERNAME." (".$ret2->getMessage().")\n";
+				}
+				else
+					$authent = true;
+			}
+			
+			if ($connected && $authent === true)
+			{
+				if ($compression == true && NNTPA_COMPRESSION == true)
+					$this->enableCompression();
+
+				return true;
+			}
+			else
+				return false;
+		}
+	}
+
 	// Quit the nntp connection.
 	public function doQuit()
 	{
@@ -255,13 +307,23 @@ class Nntp extends Net_NNTP_Client
 	}
 
 	// If there is an error with selectGroup(), try to restart the connection, else show the error. Send a 3rd argument, false, for a connection with no compression.
-	public function dataError($nntp, $group, $comp=true)
+	public function dataError($nntp, $group, $comp=true, $alternate=false)
 	{
 		$nntp->doQuit();
-		if ($comp === false)
-			$nntp->doConnect(false);
+		if ($alternate === true)
+		{
+			if ($comp === false)
+				$nntp->doConnect(false);
+			else
+				$nntp->doConnect();
+		}
 		else
-			$nntp->doConnect();
+		{
+			if ($comp === false)
+				$nntp->doConnectA(false);
+			else
+				$nntp->doConnectA();
+		}
 
 		$data = $nntp->selectGroup($group);
 		if (PEAR::isError($data))

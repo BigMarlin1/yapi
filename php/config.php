@@ -19,15 +19,26 @@ define('NNTP_SSLENABLED', false);
 define('NNTP_TIMEOUT', 15); // Seconds before giving up when trying to connect.
 define('NNTP_COMPRESSION', false); // XFeature Gzip compression.
 
+// Second provider, for filling in missed headers. Optional.
+define('NNTP_ALTERNATE', false); // Force turn on or off alternate provider.
+define('NNTPA_USERNAME', '');
+define('NNTPA_PASSWORD', '');
+define('NNTPA_SERVER', '');
+define('NNTPA_PORT', '');
+define('NNTPA_SSLENABLED', false);
+define('NNTPA_TIMEOUT', 15);
+define('NNTPA_COMPRESSION', false);
+
 // CLI settings:
 define('NEW_HEADERS', 1000000); // How many headers to fetch on a new group.
 define('QTY_HEADERS', 20000); // How many headers to fetch per loop.
 define('DEBUG_MESSAGES', false); // Turn on debug messages.
 
 // Website settings.
-define('WEB_NAME', 'Yet another php indexer'); // Name of the website.
+define('WEB_NAME', 'Yet Another PHP Indexer'); // Name of the website.
 define('MAX_PERPAGE', 50); // Maximum amount of releases per page.
 define('ADMIN_EMAIL', 'example@example.com'); // Email address for people to contact you.
+define('RSS_LIMIT', 100); // How many results to limit the RSS.
 
 // Memcache settings.
 define('MEMCACHE_ENABLED', false); // Wether to use memcached or not. Memcache keeps a MySQL query result in ram.

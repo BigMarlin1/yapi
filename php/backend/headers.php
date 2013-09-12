@@ -14,10 +14,14 @@ Class headers
 		$this->newgroupfetch = NEW_HEADERS;
 		$this->loopsize = QTY_HEADERS;
 		$this->message = array();
+		$this->alternate = false;
 	}
 
-	public function main($group, $type, $headers='')
+	public function main($group, $type, $headers='', $alternate=false)
 	{
+		if (NNTP_ALTERNATE == true)
+			$this->alternate = $alternate;
+
 		$g = new groups;
 		switch($type)
 		{
@@ -75,22 +79,35 @@ Class headers
 	public function forward($group)
 	{
 		$nntp = new Nntp;
-		if ($nntp->doConnect() === false)
-			return false;
+		if ($this->alternate == true)
+		{
+			if ($nntp->doConnectA() === false)
+				return false;
+		}
+		else
+		{
+			if ($nntp->doConnect() === false)
+				return false;
+		}
 
 		$gover = $nntp->selectGroup($group["name"]);
 		if(PEAR::isError($gover))
 		{
-			$gover = $nntp->dataError($nntp, $group["name"]);
+			$gover = $nntp->dataError($nntp, $group["name"], false, $this->alternate);
 			if ($gover === false)
 				return false;
 		}
 
 		$nntp->doQuit();
 
+		// For alternate provider.
+		$lastart = $group["lastart"];
+		if ($this->alternate == true)
+			$lastart = $group["lastarta"];
+
 		$new = false;
 		// New group.
-		if($group["lastart"] == 0)
+		if($lastart == 0)
 		{
 			$new = true;
 			$oldest = $gover["last"] - $this->newgroupfetch;
@@ -98,13 +115,13 @@ Class headers
 				$oldest = $gover["first"];
 			$newest = $gover["last"];
 		}
-		else if ($group["lastart"] < $gover["last"])
+		else if ($lastart < $gover["last"])
 		{
-			$oldest = $group["lastart"] + 1;
+			$oldest = $lastart + 1;
 			$newest = $gover["last"];
 		}
 		// Nothing to do we already have the article.
-		else if ($group["lastart"] >= $gover["last"])
+		else if ($lastart >= $gover["last"])
 		{
 			if ($this->vecho)
 				echo "No new articles for group ".$group["name"].".\n";
@@ -123,13 +140,23 @@ Class headers
 
 		$ret = $this->loopforward($oldest, $newest, $newest-$oldest, $group);
 
+		$firstart = $group["firstart"];
+		$provider = 0;
+		$cols = '';
+		if ($this->alternate == true)
+		{
+			$firstart = $group["firstarta"];
+			$provider = 1;
+			$cols = 'a';
+		}
+
 		// Update oldest time/article#.
-		if ($new === true || $group["firstart"] == 0)
+		if ($new === true || $firstart == 0)
 		{
 			$db = new DB;
-			$row = $db->queryOneRow(sprintf("SELECT f.utime, p.anumber FROM files_%d f INNER JOIN parts_%d p ON p.fileid = f.id ORDER BY f.utime ASC LIMIT 1", $group["id"], $group["id"]));
+			$row = $db->queryOneRow(sprintf("SELECT f.utime, p.anumber FROM files_%d f INNER JOIN parts_%d p ON p.fileid = f.id WHERE p.provider = %d ORDER BY f.utime ASC LIMIT 1", $group["id"], $group["id"], $provider));
 			if ($row != false)
-				$db->queryExec(sprintf("UPDATE groups SET firstdate = %d, firstart = %d WHERE id = %d", $row["utime"], $row["anumber"], $group["id"]));
+				$db->queryExec(sprintf("UPDATE groups SET firstdate%s = %d, firstart%s = %d WHERE id = %d", $cols, $row["utime"], $cols, $row["anumber"], $group["id"]));
 		}
 		return $ret;
 	}
@@ -188,28 +215,40 @@ Class headers
 	public function backfill($group, $headers)
 	{
 		$nntp = new Nntp;
-		if ($nntp->doConnect() === false)
-			return false;
+		if ($this->alternate == true)
+		{
+			if ($nntp->doConnectA() === false)
+				return false;
+		}
+		else
+		{
+			if ($nntp->doConnect() === false)
+				return false;
+		}
 
 		$gover = $nntp->selectGroup($group["name"]);
 		if(PEAR::isError($gover))
 		{
-			$gover = $nntp->dataError($nntp, $group["name"]);
+			$gover = $nntp->dataError($nntp, $group["name"], false, $this->alternate);
 			if ($gover === false)
 				return false;
 		}
 
 		$nntp->doQuit();
 
-		if ($group["firstart"] == 0)
+		$firstart = $group["firstart"];
+		if ($this->alternate == true)
+			$firstart = $group["firstarta"];
+
+		if ($firstart == 0)
 		{
 			if ($this->echov)
 				echo "You can not backfill group ".$group["name"]." until you run update_headers.php\n";
 			return false;
 		}
-		else if ($group["firstart"] >= $gover["first"])
+		else if ($firstart >= $gover["first"])
 		{
-			$newest = $group["firstart"] - 1;
+			$newest = $firstart - 1;
 			$oldest = $newest - $headers;
 			// If it's older than the servers oldest, set to the servers oldest.
 			if ($oldest <= $gover["first"])
@@ -231,11 +270,19 @@ Class headers
 
 		$ret = $this->loopbackwards($oldest, $newest, $newest-$oldest, $group);
 
+		$provider = 0;
+		$cols = '';
+		if ($this->alternate == true)
+		{
+			$provider = 1;
+			$cols = 'a';
+		}
+
 		// Update oldest time/article# in the groups table.
 		$db = new DB;
-		$row = $db->queryOneRow(sprintf("SELECT f.utime, p.anumber FROM files_%d f INNER JOIN parts_%d p ON p.fileid = f.id ORDER BY f.utime ASC LIMIT 1", $group["id"], $group["id"]));
+		$row = $db->queryOneRow(sprintf("SELECT f.utime, p.anumber FROM files_%d f INNER JOIN parts_%d p ON p.fileid = f.id WHERE p.provider = %d ORDER BY f.utime ASC LIMIT 1", $group["id"], $group["id"], $provider));
 		if ($row != false)
-			$db->queryExec(sprintf("UPDATE groups SET firstdate = %d, firstart = %d WHERE id = %d", $row["utime"], $row["anumber"], $group["id"]));
+			$db->queryExec(sprintf("UPDATE groups SET firstdate%s = %d, firstart%s = %d WHERE id = %d", $cols, $row["utime"], $cols, $row["anumber"], $group["id"]));
 
 		return $ret;
 	}
@@ -295,7 +342,11 @@ Class headers
 	{
 		if ($this->vecho)
 		{
-			echo "Fetching ".number_format($newest-$oldest)." article headers for group ".$group["name"].", articles ".number_format($oldest)." to ".number_format($newest).".\n";
+			$pserver = NNTP_SERVER;
+			if ($this->alternate == true)
+				$pserver = NNTPA_SERVER;
+
+			echo "Fetching ".number_format($newest-$oldest)." article headers from {$pserver} for group ".$group["name"].", articles ".number_format($oldest)." to ".number_format($newest).".\n";
 			if ($left > $this->loopsize)
 				echo "This group is {$percent}% done with ".number_format($left)." headers left in queue.\n";
 		}
@@ -303,14 +354,22 @@ Class headers
 		$ustart = microtime(true);
 		// Connect to usenet.
 		$nntp = new Nntp;
-		if ($nntp->doConnect() === false)
-			return false;
+		if ($this->alternate == true)
+		{
+			if ($nntp->doConnectA() === false)
+				return false;
+		}
+		else
+		{
+			if ($nntp->doConnect() === false)
+				return false;
+		}
 
 		// Select the group, reconnect if there's an error.
 		$gc = $nntp->selectGroup($group["name"]);
 		if(PEAR::isError($gc))
 		{
-			$gover = $nntp->dataError($nntp, $group["name"]);
+			$gover = $nntp->dataError($nntp, $group["name"], false, $this->alternate);
 			if ($gover === false)
 				return false;
 		}
@@ -320,12 +379,15 @@ Class headers
 		if(PEAR::isError($msgs))
 		{
 			$nntp->doQuit();
-			$nntp->doConnect(false);
+			if ($this->alternate == true)
+				$nntp->doConnectA(false);
+			else
+				$nntp->doConnect(false);
 
 			$gc = $nntp->selectGroup($group["name"]);
 			if(PEAR::isError($gc))
 			{
-				$gover = $nntp->dataError($nntp, $group["name"]);
+				$gover = $nntp->dataError($nntp, $group["name"], false, $this->alternate);
 				if ($gover === false)
 					return false;
 			}
@@ -348,6 +410,11 @@ Class headers
 			$db = new DB;
 			$matching = new matchfiles;
 			$msgsreceived = $msgsignored = $this->message = array();
+
+			$provider = 0;
+			if ($this->alternate == true)
+				$provier = 1;
+
 			// Loop over the headers, insert into DB.
 			foreach ($msgs as $msg)
 			{
@@ -414,7 +481,7 @@ Class headers
 
 					// Loop parts.
 					$db->beginTransaction();
-					$pquery = sprintf("INSERT INTO %s (part, fileid, messid, anumber, psize) ", $group["ptname"]);
+					$pquery = sprintf("INSERT IGNORE INTO %s (part, fileid, messid, anumber, psize, provider) ", $group["ptname"]);
 					$first = false;
 					$pvalues = array();
 					$filesize = $partsactual = 0;
@@ -423,18 +490,19 @@ Class headers
 						$filesize += $insprep['psize'];
 						if ($first === false)
 						{
-							$pquery .= " VALUES(?,?,?,?,?)";
+							$pquery .= " VALUES(?,?,?,?,?,?)";
 							$first = true;
 						}
 						else
-							$pquery .= ",(?,?,?,?,?)";
+							$pquery .= ",(?,?,?,?,?,?)";
 
-						$pvalues = array_merge($pvalues, array_values(array($insprep['part'], $fileid, $insprep['messid'], $insprep['anumber'], $insprep['psize'])));
+						$pvalues = array_merge($pvalues, array_values(array($insprep['part'], $fileid, $insprep['messid'], $insprep['anumber'], $insprep['psize'], $provider)));
 						$partsactual++;
 						$done++;
 					}
 					// Update filesize / parts.
-					$db->queryExec(sprintf("UPDATE %s SET fsize = fsize + %d, partsa = partsa + %d WHERE id = %d", $group["ftname"], $filesize, $partsactual, $fileid));
+					if ($filesize > 0 && $partsactual > 0)
+						$db->queryExec(sprintf("UPDATE %s SET fsize = fsize + %d, partsa = partsa + %d WHERE id = %d", $group["ftname"], $filesize, $partsactual, $fileid));
 					
 					$ipstmt = $db->Prepare($pquery);
 					try {
@@ -450,8 +518,12 @@ Class headers
 					// Update group's last article and date when going forward.
 					if ($type == "forward")
 					{
+						$cols = '';
+						if ($this->alternate == true)
+							$cols = 'a';
+
 						if (isset($newdate) && isset($newest))
-							$db->queryExec(sprintf("UPDATE groups SET lastart = %d, lastdate = %d WHERE id = %d", $newest, strtotime($newdate), $group["id"]));
+							$db->queryExec(sprintf("UPDATE groups SET lastart%s = %d, lastdate%s = %d WHERE id = %d", $cols, $newest, $cols, strtotime($newdate), $group["id"]));
 					}
 					if ($this->vecho)
 						echo "Received (in ".substr($uend - $ustart, 0, 4)." secs) ".(count($msgsreceived) - 1)." headers of ".($newest-$oldest).", ".count($msgsignored)." were not yEnc so ignored, ".number_format(($done -1))." were inserted (in ".substr(microtime(true) - $istart, 0, 4)." secs).\n";

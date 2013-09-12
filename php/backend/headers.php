@@ -97,7 +97,6 @@ Class headers
 			if ($gover === false)
 				return false;
 		}
-
 		$nntp->doQuit();
 
 		// For alternate provider.
@@ -519,21 +518,21 @@ Class headers
 
 				}
 
+				// Update group's last article and date when going forward.
+				if ($type == "forward")
+				{
+					$cols = '';
+					if ($this->alternate == true)
+						$cols = 'a';
+
+					if (isset($newdate) && isset($newest))
+						$db->queryExec(sprintf("UPDATE groups SET lastart%s = %d, lastdate%s = %d WHERE id = %d", $cols, $newest, $cols, strtotime($newdate), $group["id"]));
+				}
+
 				if ($done > 0)
 				{
-					// Update group's last article and date when going forward.
-					if ($type == "forward")
-					{
-						$cols = '';
-						if ($this->alternate == true)
-							$cols = 'a';
-
-						if (isset($newdate) && isset($newest))
-							$db->queryExec(sprintf("UPDATE groups SET lastart%s = %d, lastdate%s = %d WHERE id = %d", $cols, $newest, $cols, strtotime($newdate), $group["id"]));
-					}
 					if ($this->vecho)
 						echo "Received (in ".substr($uend - $ustart, 0, 4)." secs) ".(count($msgsreceived) - 1)." headers of ".($newest-$oldest).", ".count($msgsignored)." were not yEnc so ignored, ".number_format(($done -1))." were inserted (in ".substr(microtime(true) - $istart, 0, 4)." secs).\n";
-
 					return true;
 				}
 				else

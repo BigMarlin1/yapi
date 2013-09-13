@@ -336,7 +336,7 @@ Class files
 	public function getbychash($chash, $groupname)
 	{
 		$db = new DB;
-		if ($groupid == "all")
+		if ($groupname == "all")
 		{
 			$tids = $db->query("SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT ".MAX_PERPAGE);
 			$count = count($tids);
@@ -362,7 +362,7 @@ Class files
 		else
 		{
 			$gq = $db->queryOneRow(sprintf("SELECT id FROM groups WHERE name = %s", $db->escapeString($groupname)));
-			if ($qg == false)
+			if ($gq == false)
 				return false;
 
 			return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, SUM(fsize) AS size FROM files_%d WHERE chash = %s GROUP BY chash", $gq["id"], $db->escapeString($chash)));

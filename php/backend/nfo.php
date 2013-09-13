@@ -64,11 +64,11 @@ Class nfo
 				$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus < %d", $group["id"], NFO::NFO_FALSE, $this->incrementlimit));
 
 				// Find files with nfo or (1/1) and an uncommon extension.
-				$farr = $db->query(sprintf("SELECT fhash, origsubject, id FROM files_%d WHERE nstatus BETWEEN (%d AND %d) AND origsubject REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$' LIMIT %d", $group["id"], NFO::NFO_UNCHECKED, $this->incrementlimit, $this->nfolimit));
+				$farr = $db->query(sprintf("SELECT fhash, origsubject, id FROM files_%d WHERE nstatus BETWEEN (%d AND %d) AND origsubject REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$' ORDER BY utime DESC LIMIT %d", $group["id"], NFO::NFO_UNCHECKED, $this->incrementlimit, $this->nfolimit));
 				if (count($farr) > 0)
 				{
 					if ($this->echov)
-						echo count($farr)." files have an NFO or possible NFO out of ".$this->nfolimit." for group ".$group["name"].".\n";
+						echo "Looking up ".count($farr)." NFOs for group ".$group["name"].".\n";
 
 					foreach ($farr as $file)
 					{
@@ -205,7 +205,7 @@ Class nfo
 	public function returnNfo($chash, $groupid, $encode=false)
 	{
 		$db = new DB;
-		$nfo = $db->queryOneRow(sprintf("SELECT UNCOMPRESS(nfo) AS n FROM filenfo INNER JOIN files_%d as f ON f.fhash = filenfo.fhash WHERE f.chash = %s LIMIT 1", $groupid, $db->escapeString($chash)));
+		$nfo = $db->queryOneRow(sprintf("SELECT UNCOMPRESS(nfo) AS n FROM filenfo INNER JOIN files_%d as f ON f.fhash = filenfo.fhash WHERE f.chash = %s AND f.nstatus > 0 LIMIT 1", $groupid, $db->escapeString($chash)));
 		if ($nfo == false)
 			return false;
 

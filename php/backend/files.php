@@ -14,7 +14,7 @@ Class files
 		if ($limit != '')
 			$maxperpage = $limit;
 
-		return $db->query(sprintf("SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, groups.name, groups.id AS groupid FROM files_%d INNER JOIN groups ON groups.id = groupid GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d", $groupid, $maxperpage, $offset), true, CACHE_MEXPIRY);
+		return $db->query(sprintf("SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, groups.name, groups.id AS groupid, MAX(nstatus) AS nstatust FROM files_%d INNER JOIN groups ON groups.id = groupid GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d", $groupid, $maxperpage, $offset), true, CACHE_MEXPIRY);
 	}
 
 	// Get count of all files for browsegroup and RSS. Cached with memcache long expiry.
@@ -29,7 +29,7 @@ Class files
 	public function getforbnzb($chash, $groupid)
 	{
 		$db = new DB;
-		return $db->queryOneRow(sprintf("SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_%d WHERE chash = %s GROUP BY chash", $groupid, $db->escapeString($chash)));
+		return $db->queryOneRow(sprintf("SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_%d WHERE chash = %s GROUP BY chash", $groupid, $db->escapeString($chash)));
 	}
 
 	// Get for browse page, need to select from all groups. Also used for RSS. Cache with memcache long.
@@ -56,9 +56,9 @@ Class files
 			{
 				$id = $tid["id"];
 				if ($i++ == $count)
-					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_{$id} GROUP BY chash ORDER BY utime DESC LIMIT {$max} OFFSET {$offset})";
+					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_{$id} GROUP BY chash ORDER BY utime DESC LIMIT {$max} OFFSET {$offset})";
 				else
-					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_{$id} GROUP BY chash ORDER BY utime DESC LIMIT {$max} OFFSET {$offset}) UNION ";
+					$fstr .= "(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_{$id} GROUP BY chash ORDER BY utime DESC LIMIT {$max} OFFSET {$offset}) UNION ";
 			}
 			return $db->query("SELECT files.*, groups.name, groups.id AS groupid FROM ({$fstr}) AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT {$maxperpage}", true);
 		}
@@ -144,14 +144,14 @@ Class files
 			{
 				$id = $tid["id"];
 				if ($i++ == $count)
-					$fstr .= sprintf("(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_$id WHERE 1=1 %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d)", $subq, $age, $max, $offset);
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_$id WHERE 1=1 %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d)", $subq, $age, $max, $offset);
 				else
-					$fstr .= sprintf("(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_$id WHERE 1=1 %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d) UNION ", $subq, $age, $max, $offset);
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_$id WHERE 1=1 %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d) UNION ", $subq, $age, $max, $offset);
 			}
 			return $db->query("SELECT files.*, groups.name, groups.id AS groupid FROM ($fstr) AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT ".MAX_PERPAGE, true);
 		}
 		else
-			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d", $group, $subq, $age, MAX_PERPAGE, $offset));
+			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d", $group, $subq, $age, MAX_PERPAGE, $offset));
 	}
 
 	// Count for search paginator. Cache with memcache long.
@@ -301,11 +301,11 @@ Class files
 			{
 				$id = $tid["id"];
 				if ($i++ == $count)
-					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize, SUM(partsa) AS tfiles FROM files_$id WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d)", $subq, $ages, $minsizes, $maxsizes, $sort, $max, $offset);
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize, SUM(partsa) AS tfiles, MAX(nstatus) AS nstatust FROM files_$id WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d)", $subq, $ages, $minsizes, $maxsizes, $sort, $max, $offset);
 				else
-					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize, SUM(partsa) AS tfiles FROM files_$id WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d) UNION ", $subq, $ages, $minsizes, $maxsizes, $sort, $max, $offset);
+					$fstr .= sprintf("(SELECT *, SUM(fsize) AS tsize, SUM(partsa) AS tfiles, MAX(nstatus) AS nstatust FROM files_$id WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d) UNION ", $subq, $ages, $minsizes, $maxsizes, $sort, $max, $offset);
 			}
-			return $db->query("SELECT files.*, groups.name, groups.id, tsize, tfiles AS groupid FROM ({$fstr}) AS files INNER JOIN groups ON groups.id = files.groupid {$sort} LIMIT {$limit}");
+			return $db->query("SELECT files.*, groups.name, groups.id AS groupid, tsize, tfiles FROM ({$fstr}) AS files INNER JOIN groups ON groups.id = files.groupid {$sort} LIMIT {$limit}");
 		}
 		else
 		{
@@ -313,7 +313,7 @@ Class files
 			if ($gq === false)
 				return array();
 
-			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS tsize FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d", $gq["id"], $subq, $ages, $minsizes, $maxsizes, $sort, $limit, $offset));
+			return $db->query(sprintf("SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS tsize, MAX(nstatus) AS nstatust FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d", $gq["id"], $subq, $ages, $minsizes, $maxsizes, $sort, $limit, $offset));
 		}
 	}
 
@@ -321,7 +321,7 @@ Class files
 	public function getforbnzbcontents($chash, $groupid, $offset)
 	{
 		$db = new DB;
-		return $db->query(sprintf("SELECT * FROM files_%d WHERE chash = %s ORDER BY origsubject ASC LIMIT %d OFFSET %d", $groupid, $db->escapeString($chash), MAX_PERPAGE, $offset), true);
+		return $db->query(sprintf("SELECT *, MAX(nstatus) AS nstatust FROM files_%d WHERE chash = %s ORDER BY origsubject ASC LIMIT %d OFFSET %d", $groupid, $db->escapeString($chash), MAX_PERPAGE, $offset), true);
 	}
 
 	// Count for nzbcontents pagination.
@@ -343,7 +343,7 @@ Class files
 			if ($count == 0)
 				return false;
 			else if ($count === 1)
-				return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, SUM(fsize) AS size FROM files_%d WHERE chash = %s GROUP BY chash", $tids[0]["id"], $db->escapeString($chash)));
+				return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_%d WHERE chash = %s GROUP BY chash", $tids[0]["id"], $db->escapeString($chash)));
 			else
 			{
 				$fstr = '';
@@ -352,11 +352,11 @@ Class files
 				{
 					$id = $tid["id"];
 					if ($i++ == $count)
-						$fstr .= sprintf("(SELECT subject, chash, groupid, utime, SUM(fsize) AS size FROM files_$id WHERE chash = %s GROUP BY chash)", $db->escapeString($chash));
+						$fstr .= sprintf("(SELECT subject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_$id WHERE chash = %s GROUP BY chash)", $db->escapeString($chash));
 					else
-						$fstr .= sprintf("(SELECT subject, chash, groupid, utime, SUM(fsize) AS size FROM files_$id WHERE chash = %s GROUP BY chash) UNION ", $db->escapeString($chash));
+						$fstr .= sprintf("(SELECT subject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_$id WHERE chash = %s GROUP BY chash) UNION ", $db->escapeString($chash));
 				}
-				return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, size FROM ($fstr) AS files LIMIT 1", $groupid, $db->escapeString($chash)));
+				return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, size, nstatust FROM ($fstr) AS files LIMIT 1", $groupid, $db->escapeString($chash)));
 			}
 		}
 		else
@@ -365,7 +365,7 @@ Class files
 			if ($gq == false)
 				return false;
 
-			return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, SUM(fsize) AS size FROM files_%d WHERE chash = %s GROUP BY chash", $gq["id"], $db->escapeString($chash)));
+			return $db->queryOneRow(sprintf("SELECT subject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_%d WHERE chash = %s GROUP BY chash", $gq["id"], $db->escapeString($chash)));
 		}
 	}
 }

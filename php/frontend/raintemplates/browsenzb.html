@@ -53,7 +53,7 @@
 		<th>NZB:</th>
 		<td><a href="getnzb.php?identifier={$file.chash}&subject={$file.subject|urlencode}&group={$group.id}&type=multi" download>{$nzb_img}</a></td>
 	</tr>
-	{if="$file.nstatus > 0"}
+	{if="$file.nstatust > 0"}
 	<tr class="row_1">
 		<th>NFO:</th>
 		<td><a style="float:left;" class="modal_nfo rndbtn" href="nfo.php?chash={$file.chash}&group={$group.id}" title="View Nfo" rel="nfo">Nfo</a></td>

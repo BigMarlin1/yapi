@@ -15,5 +15,8 @@
 			</div>
 			<?php include('rainscripts/footer.php'); ?>
 		</div>
+		<script src="/scripts/jquery-1.9.1.js"></script>
+		<script src="/scripts/jquery.colorbox-min.js"></script>
+		<script src="/scripts/utils.js"></script>
 	</body>
 </html>

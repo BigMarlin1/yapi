@@ -8,7 +8,7 @@
 				include('rainscripts/header.php'); 
 				include('rainscripts/nav.php');
 			?>
-			<div id="content">
+			<div id="content" style="margin-bottom:5px;">
 				<div id="innercontent">
 					<h3>Groups:</h3>
 						<?php include('rainscripts/groupslist.php'); ?>

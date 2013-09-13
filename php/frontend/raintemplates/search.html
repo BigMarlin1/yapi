@@ -13,20 +13,26 @@
 	<input type="submit" value="Search"></input>
 </form>
 {if="$rcheck == true"}
-	<table border="1" style="border-collapse:collapse;border-top:solid 1px;">
+	<table border="1" class="data">
 		<tr class="header">
-			<th>Subject</th>
-			<th>Group</th>
-			<th>Size</th>
-			<th>Completion</th>
-			<th>Added to Usenet</th>
-			<th>NZB</th>
+			<th class="subject">Subject</th>
+			<th class="group">Group</th>
+			<th class="size">Size</th>
+			<th class="completion">Parts</th>
+			<th class="addedu">Posted</th>
+			<th class="nzb">NZB</th>
 		</tr>
 		{loop="filearr"}
 		<tr class="row_{$counter%2+1}">
-			<td><a style="text-decoration: none;" href="browsenzb.php?chash={$value1.chash}&group={$value1.groupid}&subject={$value1.subject|urlencode}">{$value1.subject}</a></td>
-			<td>{$value1.name|abreplace}</td>
-			<td>
+			<td class="subject">
+				<a class="subject" style="text-decoration: none;" href="browsenzb.php?chash={$value1.chash}&group={$value1.groupid}&subject={$value1.subject|urlencode}">{$value1.subject}
+				{if="$value1.nstatus > 0"}
+					<a class="modal_nfo rndbtn" href="nfo.php?chash={$value1.chash}&group={$value1.groupid}" title="View Nfo" rel="nfo">Nfo</a>
+				{/if}
+				</a>
+			</td>
+			<td class="group">{$value1.name|abreplace}</td>
+			<td class="size">
 				{if="$value1.size > 1099511627776"} {$size=$value1.size / 1099511627776}
 					{$size|round}TiB
 				{elseif="$value1.size > 1073741824"} {$size=$value1.size / 1073741824}
@@ -38,13 +44,13 @@
 				{else} {$value1.size}B
 				{/if}
 			</td>
-			<td>
+			<td class="completion">
 				{$completion=($value1.actualparts / $value1.totalparts) * 100}
 				{if="$completion > 100"} {$completion=100}{/if}
 				{$completion|number_format}%
 			</td>
-			<td>{$value1.utime|utsince} Ago</td>
-			<td><a href="getnzb.php?identifier={$value1.chash}&subject={$value1.subject|urlencode}&group={$value1.groupid}&type=multi" download>{$nzb_img}</a></td>
+			<td class="addedu">{$value1.utime|utsince} Ago</td>
+			<td class="nzb"><a class="nzb" href="getnzb.php?identifier={$value1.chash}&subject={$value1.subject|urlencode}&group={$value1.groupid}&type=multi" download>{$nzb_img}</a></td>
 		</tr>
 		{/loop}
 	</table>

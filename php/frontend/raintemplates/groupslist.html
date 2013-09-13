@@ -1,5 +1,5 @@
-<table border="1">
-	<tr>
+<table class="data" border="1" style="border-top:solid 1px">
+	<tr class="header">
 		<th>Group</th>
 		<th>Group ID</th>
 		<th>Files</th>
@@ -12,7 +12,7 @@
 		<th>Oldest article Date</th>
 	</tr>
 	{loop="grouparr"}
-	<tr>
+	<tr class="row_{$counter%2+1}">
 		<td><a href="browsegroup.php?groupid={$value1.id}&group={$value1.name}&page=1">{$value1.name}</a></td>
 		<td>{$value1.id}</td>
 		<td>{if="$value1.tstatus == 1"} {function="getfcount($value1.id)"}{else} 0{/if}</td>

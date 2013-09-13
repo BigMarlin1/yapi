@@ -1,7 +1,7 @@
-body 
+body
 {
 	background-color:#f1f1f1;
-	font-family: georgia,sans-serif;
+	font-family: Arial,Helvetica,sans-serif;
 	color:#333;
 	margin:0;
 	padding:0;
@@ -27,25 +27,6 @@ li.pagination
 	display: inline;
 }
 
-tr.row_1
-{
-	background-color: #FFFFFF;
-}
-
-tr.row_2
-{
-	background-color: #E3E3E3;
-}
-
-a.pagination
-{
-	text-decoration: none;
-}
-
-tr.header
-{
-	background-color: #E3E3E3;
-}
 
 #nav
 {
@@ -80,6 +61,82 @@ tr.header
 	margin-right: auto;
 }
 
+a.pagination
+{
+	text-decoration: none;
+}
+
+table.data
+{
+	min-width: 100%;
+	border-collapse:collapse;
+}
+
+tr.row_1
+{
+	background-color: #FFFFFF;
+}
+
+tr.row_2
+{
+	background-color: #E3E3E3;
+}
+
+tr.header
+{
+	background-color: #E3E3E3;
+}
+
+th.nzb
+{
+	width: 38px;
+}
+
+th.addedu
+{
+	width: 86px;
+}
+
+th.completion
+{
+	width: 51px;
+}
+
+th.size
+{
+	width: 61px;
+}
+
+th.group
+{
+	width: 90px;
+}
+
+td.addedu
+{
+	text-align:center;
+}
+
+td.completion
+{
+	text-align:center;
+}
+
+td.size
+{
+	text-align:center;
+}
+
+td.group
+{
+	text-align:center;
+}
+
+a.nzb
+{
+	margin-left: 6px;
+}
+
 #footer
 {
 	clear:both;
@@ -92,3 +149,61 @@ tr.header
 	margin-top: 2px;
 	text-align: center;
 }
+
+.rndbtn
+{
+	margin: 1px 2px 1px 1px;
+	border: 2px #AAA solid;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+
+.modal_nfo
+{
+	float: right;
+	background-color: #000;
+	text-decoration: none;
+	color: #DDD;
+}
+
+/*
+	ColorBox Core Style
+	The following rules are the styles that are consistant between themes.
+	Avoid changing this area to maintain compatability with future versions of ColorBox.
+*/
+#colorbox, #cboxOverlay, #cboxWrapper{position:absolute; top:0; left:0; z-index:9999; overflow:hidden;}
+#cboxOverlay{position:fixed; width:100%; height:100%;}
+#cboxMiddleLeft, #cboxBottomLeft{clear:left;}
+#cboxContent{position:relative; overflow:visible;}
+#cboxLoadedContent{overflow:auto;}
+#cboxLoadedContent iframe{display:block; width:100%; height:100%; border:0;}
+#cboxTitle{margin:0;}
+#cboxLoadingOverlay, #cboxLoadingGraphic{position:absolute; top:0; left:0; width:100%;}
+#cboxPrevious, #cboxNext, #cboxClose, #cboxSlideshow{cursor:pointer;}
+#cboxOverlay{background:#fff;}
+#colorbox{}
+#cboxTopLeft{width:25px; height:25px; background:url(../raintemplates/images/colorbox/border1.png) 0 0 no-repeat;}
+#cboxTopCenter{height:25px; background:url(../raintemplates/images/colorbox/border1.png) 0 -50px repeat-x;}
+#cboxTopRight{width:25px; height:25px; background:url(../raintemplates/images/colorbox/border1.png) -25px 0 no-repeat;}
+#cboxBottomLeft{width:25px; height:25px; background:url(../raintemplates/images/colorbox/border1.png) 0 -25px no-repeat;}
+#cboxBottomCenter{height:25px; background:url(../raintemplates/images/colorbox/border1.png) 0 -75px repeat-x;}
+#cboxBottomRight{width:25px; height:25px; background:url(../raintemplates/images/colorbox/border1.png) -25px -25px no-repeat;}
+#cboxMiddleLeft{width:25px; background:url(../raintemplates/images/colorbox/border2.png) 0 0 repeat-y;}
+#cboxMiddleRight{width:25px; background:url(../raintemplates/images/colorbox/border2.png) -25px 0 repeat-y;}
+#cboxContent{background:#fff;}
+#cboxLoadedContent{background:#fff; margin-top:32px; padding:1px; }
+#cboxLoadingOverlay{background:#fff;}
+#cboxTitle{position:absolute; font-size:125%; top:-2px; left:0; color:#000; }
+#cboxCurrent{position:absolute; top:-1px; right:205px; text-indent:-9999px;}
+#cboxSlideshow, #cboxPrevious, #cboxNext, #cboxClose{text-indent:-9999px; width:20px; height:20px; position:absolute; top:-1px; background:url(../raintemplates/images/colorbox/controls.png) 0 0 no-repeat;}
+#cboxPrevious{background-position:0px 0px; right:44px; border-style:solid; border-color:#fff;}
+#cboxPrevious.hover{background-position:0px -25px;}
+#cboxNext{background-position:-25px 0px; right:22px; border-style:solid; border-color:#fff;}
+#cboxNext.hover{background-position:-25px -25px;}
+#cboxClose{background-position:-50px 0px; right:0; border-style:solid; border-color:#fff;}
+#cboxClose.hover{background-position:-50px -25px;}
+.cboxSlideshow_on #cboxPrevious, .cboxSlideshow_off #cboxPrevious{right:66px;}
+.cboxSlideshow_on #cboxSlideshow{background-position:-75px -25px; right:44px;}
+.cboxSlideshow_on #cboxSlideshow.hover{background-position:-100px -25px;}
+.cboxSlideshow_off #cboxSlideshow{background-position:-100px 0px; right:44px;}
+.cboxSlideshow_off #cboxSlideshow.hover{background-position:-75px -25px;}

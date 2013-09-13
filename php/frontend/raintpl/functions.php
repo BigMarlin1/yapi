@@ -6,16 +6,14 @@
 function utsince($time)
 {
 	$diff = time() - $time;
-	if ($diff > 172800)
-		return floor($diff/(60*60*24))." Days";
-	else if ($diff > 86400)
-		return floor($diff/(60*60*24))." Day";
+	if ($diff > 86400)
+		return floor($diff/(60*60*24))."d";
 	else if ($diff > 3600)
-		return round($diff/(60*60), 1)." Hours";
+		return round($diff/(60*60), 1)."h";
 	else if ($diff > 99)
-		return round($diff/60)." Mins";
+		return round($diff/60)."m";
 	else
-		return $diff." Secs";
+		return $diff."s";
 }
 
 // Convert unixtime to date: Tue, 10 Sep 2013 14:39:34 -0400

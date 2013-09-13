@@ -14,6 +14,8 @@ require_once(PHP_DIR."backend/rarinfo/zipinfo.php");
 
 Class nfo
 {
+	// File possible has an NFO but we couldn't get it.
+	const NFO_FAILED = -62;
 	// File with no NFO.
 	const NFO_FALSE = -61;
 	// File possibly has an NFO but we couldn't determine.
@@ -61,7 +63,7 @@ Class nfo
 				$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus = %d AND origsubject NOT REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$'", $group["id"], NFO::NFO_FALSE, NFO::NFO_UNCHECKED, '%.nfo"%'));
 
 				// Mark files with incrementlimit as no NFO.
-				$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus < %d", $group["id"], NFO::NFO_FALSE, $this->incrementlimit));
+				$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus < %d", $group["id"], NFO::NFO_FAILED, $this->incrementlimit));
 
 				// Find files with nfo or (1/1) and an uncommon extension.
 				$farr = $db->query(sprintf("SELECT fhash, origsubject, id FROM files_%d WHERE nstatus BETWEEN (%d AND %d) AND origsubject REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$' ORDER BY utime DESC LIMIT %d", $group["id"], NFO::NFO_UNCHECKED, $this->incrementlimit, $this->nfolimit));

@@ -35,6 +35,7 @@ define('QTY_HEADERS', 20000); // How many headers to fetch per loop.
 define('DEBUG_MESSAGES', false); // Turn on debug messages.
 define('UNRAR_PATH', ''); // Path to the non-free unrar binary. /usr/bin/unrar in ubuntu
 define('SEVENZIP_PATH', ''); // Path to the 7zip CLI binary. /usr/bin/7za in ubuntu
+define('STORE_FILES', false); // Store file names from inside of zip/rar into the DB.
 
 // Website settings.
 define('WEB_NAME', 'Yet Another PHP Indexer'); // Name of the website.

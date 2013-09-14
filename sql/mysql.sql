@@ -71,6 +71,8 @@ CREATE TABLE files
 	nstatus TINYINT(1) SIGNED NOT NULL DEFAULT 0,
 	/* wether this file is passworded or not */
 	pstatus TINYINT(1) SIGNED NOT NULL DEFAULT 0,
+	/* how many files inside the rar/zip files we added to the innerfiles table */
+	innerfiles TINYINT UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY (id),
 	KEY poster (poster),
 	KEY utime (utime),
@@ -106,15 +108,38 @@ CREATE TABLE parts
 	UNIQUE messid (messid)
 ) ENGINE=INNODB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci AUTO_INCREMENT=1;
 
+/* NFO files */
 DROP TABLE IF EXISTS filenfo;
 
 CREATE TABLE filenfo
 (
-	id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+	id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
 	/* hash from the files table */
 	fhash VARCHAR(64) NOT NULL DEFAULT '0',
 	/* nfo file, compressed */
 	nfo BLOB NULL DEFAULT NULL,
 	PRIMARY KEY (id),
 	KEY fhash (fhash)
+) ENGINE=INNODB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci AUTO_INCREMENT=1;
+
+/* Files inside of rars */
+DROP TABLE IF EXISTS innerfiles;
+
+CREATE TABLE innerfiles
+(
+	id INT(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+	/* hash from the files table */
+	fhash VARCHAR(64) NOT NULL DEFAULT '0',
+	/* file name */
+	ifname VARCHAR(255) NOT NULL DEFAULT '',
+	/* unixtime the file was compressed */
+	iftime INT(8) UNSIGNED NOT NULL DEFAULT 0,
+	/* the size of the file in bytes */
+	ifsize BIGINT UNSIGNED NOT NULL DEFAULT 0,
+	PRIMARY KEY (id),
+	KEY fhash (fhash),
+	KEY ifname (ifname),
+	KEY iftime (iftime),
+	KEY ifsize (ifsize),
+	UNIQUE uniquefile (ifname, fhash)
 ) ENGINE=INNODB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci AUTO_INCREMENT=1;

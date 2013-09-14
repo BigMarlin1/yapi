@@ -42,12 +42,12 @@ Class PChecking
 				exit("ERROR: You must set NNTP_ALTERNATE to true in config.php to fetch NFO's using an alternate NNTP provider.\n");
 
 			if ($this->echov)
-				echo 'Starting to look up '.$this->pchecklimit." previous files that failed with primary NNTP provider.\nf = failed download of yEnc file ;; p = passworded ;; e = encrypted ;; - no pass/encrypt, or error ;; n found NFO\n";
+				echo 'Starting to look up '.$this->pchecklimit." previous files that failed with primary NNTP provider.\nf = error ;; p = passworded ;; e = encrypted ;; - no pass/encrypt ;; n found NFO\n";
 		}
 		else
 		{
 			if ($this->echov)
-				echo 'Starting to look up '.$this->pchecklimit." files for passwords/encryption.\nf = failed download of yEnc file ;; p = passworded ;; e = encrypted ;; - no pass/encrypt, or error ;; n found NFO\n";
+				echo 'Starting to look up '.$this->pchecklimit." files for passwords/encryption.\nf = error ;; p = passworded ;; e = encrypted ;; - no pass/encrypt ;; n found NFO\n";
 		}
 
 		$groups = new groups;
@@ -71,17 +71,17 @@ Class PChecking
 
 				// Find files that have previously failed downloading using the alternate NNTP provider.
 				if ($alternate === true)
-					$farr = $db->query(sprintf('SELECT fhash, origsubject, id, nstatus, groupid FROM files_%d WHERE pstatus = %d ORDER BY utime DESC LIMIT %d', $group['id'], PChecking::PC_FAILED, $this->pchecklimit));
+					$farr = $db->query(sprintf('SELECT chash, fhash, origsubject, id, nstatus, groupid FROM files_%d WHERE pstatus = %d ORDER BY utime DESC LIMIT %d', $group['id'], PChecking::PC_FAILED, $this->pchecklimit));
 				else
 				{
 					// Mark files with no candidates as false.
-					$db->queryExec(sprintf("UPDATE files_%d SET pstatus = %d WHERE pstatus = %d AND origsubject NOT REGEXP '[.]((r(ar|0[01])|z(ip|0[01]))[^a-zA-Z0-9]|([01][01]|00[12])\")'", $group['id'], PChecking::PC_UNKOWN, PChecking::PC_UNCHECKED));
+					$db->queryExec(sprintf("UPDATE files_%d SET pstatus = %d WHERE pstatus = %d AND origsubject NOT REGEXP '[.]((r(ar|0[01])|z(ip|0[01]))[^a-zA-Z0-9.]|([01][01]|00[12])\")'", $group['id'], PChecking::PC_UNKOWN, PChecking::PC_UNCHECKED));
 
 					// Mark files with incrementlimit as failed.
 					$db->queryExec(sprintf('UPDATE files_%d SET pstatus = %d WHERE pstatus BETWEEN %d AND %d', $group['id'], PChecking::PC_FAILED, ($this->incrementlimit - 5), $this->incrementlimit));
 					
 					// Find files with rar or zip or .00" etc.
-					$farr = $db->query(sprintf("SELECT fhash, origsubject, id, nstatus, groupid FROM files_%d WHERE origsubject REGEXP '[.]((r(ar|0[01])|z(ip|0[01]))[^a-zA-Z0-9]|([01][01]|00[12])\")' AND pstatus IN %s GROUP BY chash ORDER BY utime DESC LIMIT %d", $group['id'], $inq, $this->pchecklimit));
+					$farr = $db->query(sprintf("SELECT chash, fhash, origsubject, id, nstatus, groupid FROM files_%d WHERE origsubject REGEXP '[.]((r(ar|0[01])|z(ip|0[01]))[^a-zA-Z0-9]|([01][01]|00[12])\")' AND pstatus IN %s GROUP BY chash ORDER BY utime DESC LIMIT %d", $group['id'], $inq, $this->pchecklimit));
 				}
 				if (count($farr) > 0)
 				{
@@ -117,17 +117,17 @@ Class PChecking
 		$nntp = new nntp;
 		// Connect, increment failed attempts if fails.
 		if ($nntp->doConnect(true, $this->alternate) == false)
-			return $this->failed($file['id'], $group['id']);
+			return $this->failed($file['fhash'], $group['id']);
 
 		$db = new DB;
 		$part = $db->queryOneRow(sprintf('SELECT messid FROM parts_%d WHERE fileid = %d ORDER BY part ASC LIMIT 1', $group['id'], $file['id']));
 		if ($part === false)
-			return $this->failed($file['id'], $group['id']);
+			return $this->failed($file['fhash'], $group['id']);
 
 		// Download the article.
 		$pfile = $nntp->getMessage($group['name'], $part['messid']);
 		if ($pfile == false)
-			return $this->failed($file['id'], $group['id']);
+			return $this->failed($file['fhash'], $group['id']);
 
 		return $this->checkfile($pfile, $file);
 	}
@@ -141,7 +141,7 @@ Class PChecking
 			if ($this->debug && $this->echov)
 				 echo 'DEBUG: File '.$filearr['id'].'|Group '.$filearr['groupid'].": {$archive->error}\n";
 
-			$this->failed($filearr['id'], $filearr['groupid']);
+			$this->setdone($filearr['chash'], $filearr['groupid'], PChecking::PC_UNKOWN);
 			return 0;
 		}
 
@@ -160,7 +160,7 @@ Class PChecking
 			if ($this->echov)
 				echo '-';
 
-			$this->setstatus($filearr['fhash'], $filearr['groupid'], PChecking::PC_UNKOWN);
+			$this->setdone($filearr['chash'], $filearr['groupid'], PChecking::PC_UNKOWN);
 			return 0;
 		}
 
@@ -172,7 +172,7 @@ Class PChecking
 			if ($this->echov)
 				echo 'e';
 
-			$this->setstatus($filearr['fhash'], $filearr['groupid'], PChecking::PC_ENCRYPTED);
+			$this->setdone($filearr['chash'], $filearr['groupid'], PChecking::PC_ENCRYPTED);
 			return 1;
 		}
 		else
@@ -190,9 +190,12 @@ Class PChecking
 					if ($this->echov)
 						echo 'p';
 
-					$this->setstatus($filearr['fhash'], $filearr['groupid'], PChecking::PC_PASSWORDED);
+					$this->setdone($filearr['chash'], $filearr['groupid'], PChecking::PC_PASSWORDED);
 					return 1;
 				}
+
+				if (STORE_FILES === true)
+					$this->addfile($filearr['fhash'], $filearr['groupid'], $file['name'], $file['size'], $file['date']);
 
 				if (empty($file['compressed']))
 				{
@@ -258,9 +261,19 @@ Class PChecking
 			if ($this->echov)
 				echo '-';
 
-			$this->setstatus($filearr['fhash'], $filearr['groupid'], PChecking::PC_FALSE);
+			$this->setdone($filearr['chash'], $filearr['groupid'], PChecking::PC_FALSE);
 			return 0;
 		}
+	}
+
+	// Store file names in the DB from inside the rar / zip.
+	public function addfile($fhash, $groupid, $name, $size, $date)
+	{
+		if ($this->debug && $this->echov)
+			echo 'DEBUG: Added file '.$name." to the DB.\n";
+		$db = new DB;
+		$db->queryExec(sprintf('INSERT IGNORE INTO innerfiles (ifname, ifsize, iftime, fhash) VALUES (%s, %d, %d, %s)', $db->escapeString($name), $size, $date, $db->escapeString($fhash)));
+		$db->queryExec(sprintf('UPDATE files_%d SET innerfiles = innerfiles + 1 WHERE fhash = %s', $groupid, $db->escapeString($fhash)));
 	}
 
 	// Send to increment or setstatus.
@@ -287,5 +300,12 @@ Class PChecking
 	{
 		$db = new DB;
 		$db->queryExec(sprintf('UPDATE files_%d SET pstatus = %d WHERE fhash = %s', $groupid, $type, $db->escapeString($fhash)));
+	}
+
+	// Set the collection status so we dont run into this collection again.
+	public function setdone($chash, $groupid, $type)
+	{
+		$db = new DB;
+		$db->queryExec(sprintf('UPDATE files_%d SET pstatus = %d WHERE chash = %s', $groupid, $type, $db->escapeString($chash)));
 	}
 }

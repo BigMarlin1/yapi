@@ -30,9 +30,9 @@ define('NNTPA_TIMEOUT', 15);
 define('NNTPA_COMPRESSION', false);
 
 // CLI settings:
-define('NEW_HEADERS', 100000); // How many headers to fetch on a new group.
+define('NEW_HEADERS', 1000000); // How many headers to fetch on a new group.
 define('QTY_HEADERS', 20000); // How many headers to fetch per loop.
-define('DEBUG_MESSAGES', true); // Turn on debug messages.
+define('DEBUG_MESSAGES', false); // Turn on debug messages.
 define('UNRAR_PATH', ''); // Path to the non-free unrar binary. /usr/bin/unrar in ubuntu
 define('SEVENZIP_PATH', ''); // Path to the 7zip CLI binary. /usr/bin/7za in ubuntu
 

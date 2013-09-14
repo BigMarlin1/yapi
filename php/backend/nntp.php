@@ -10,8 +10,13 @@ class Nntp extends Net_NNTP_Client
 	// Make a NNTP connection.
 	public function doConnect($compression=true, $alternate=false)
 	{
-		if ($alternate === true && NNTP_ALTERNATE == true)
-			return $this->doConnectA($compression);
+		if ($alternate === true)
+		{
+			if (NNTP_ALTERNATE == true)
+				return $this->doConnectA($compression);
+			else
+				return false;
+		}
 
 		if ($this->_isConnected())
 			return true;

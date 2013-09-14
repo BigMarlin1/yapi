@@ -14,24 +14,16 @@ require_once(PHP_DIR."backend/rarinfo/zipinfo.php");
 
 Class nfo
 {
-	// File possible has an NFO but we couldn't get it.
-	const NFO_FAILED = -62;
-	// File with no NFO.
-	const NFO_FALSE = -61;
-	// File possibly has an NFO but we couldn't determine.
-	const NFO_POSSIBLE = -60;
-	// File is unchecked.
-	const NFO_UNCHECKED = 0;
-	// File has an NFO with .nfo extension.
-	const NFO_NORMAL = 1;
-	// File has an NFO without .nfo extension.
-	const NFO_HIDDEN = 2;
-	// File has an NFO from .rar file.
-	const NFO_RAR = 3;
-	// File has an NFO from .zip file.
-	const NFO_ZIP = 4;
-	// File has an NFO from predb.
-	const NFO_PREDB = 5;
+	const NFO_DISABLED = -63;	// File possibly has an NFO and we couldn't get it with the atlernate provider.
+	const NFO_FAILED = -62;		// File possibly has an NFO but we couldn't get it, retry it with alternate provider.
+	const NFO_FALSE = -61;		// File with no NFO.
+	const NFO_POSSIBLE = -60;	// File possibly has an NFO but we couldn't determine.
+	const NFO_UNCHECKED = 0;	// File is unchecked.
+	const NFO_NORMAL = 1;		// File has an NFO with .nfo extension.
+	const NFO_HIDDEN = 2;		// File has an NFO without .nfo extension.
+	const NFO_RAR = 3;			// File has an NFO from .rar file.
+	const NFO_ZIP = 4;			// File has an NFO from .zip file.
+	const NFO_PREDB = 5;		// File has an NFO from predb.
 
 	function nfo($echo = false)
 	{
@@ -39,17 +31,30 @@ Class nfo
 		$this->debug = DEBUG_MESSAGES;
 		$this->nfolimit = 100;
 		$this->incrementlimit = -5;
+		$this->alternate = false;
 	}
 
 	// Go through active groups scanning for NFOs.
-	public function scanfornfo()
+	public function scanfornfo($alternate=false)
 	{
+		if ($alternate === true)
+		{
+			if (NNTP_ALTERNATE == true)
+				$this->alternate = true;
+			else
+				exit("ERROR: You must set NNTP_ALTERNATE to true in config.php to fetch NFO's using an alternate NNTP provider.\n");
+
+			if ($this->echov)
+				echo "Starting to look up to ".$this->nfolimit." previous NFOs that failed with primary NNTP provider.\n- = no NFO ;; + = NFO ;; * = Hidden NFO ;; _ no Hidden NFO\n";
+		}
+		else
+		{
+			if ($this->echov)
+			echo "Starting to look up to ".$this->nfolimit." new NFOs.\n- = failed to download NFO ;; + = NFO downloaded ;; * = hidden NFO downloaded ;; _ unable to determine if it is an NFO\n";
+		}
+
 		$groups = new groups;
 		$garr = $groups->getstarted();
-
-		if ($this->echov)
-			echo "Starting to look for up to ".$this->nfolimit." new NFOs.\n- = no NFO ;; + = NFO ;; * = Hidden NFO ;; _ no Hidden NFO\n";
-
 		if (count($garr) > 0)
 		{
 			$db = new DB;
@@ -59,14 +64,21 @@ Class nfo
 				if ($limit > $this->nfolimit)
 					break;
 
-				// Mark files with no NFO as false.
-				$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus = %d AND origsubject NOT REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$'", $group["id"], NFO::NFO_FALSE, NFO::NFO_UNCHECKED, '%.nfo"%'));
+				// Find NFOs that have previously failed downloading using the alternate NNTP provider.
+				if ($alternate === true)
+					$farr = $db->query(sprintf("SELECT fhash, origsubject, id FROM files_%d WHERE nstatus = %d ORDER BY utime DESC LIMIT %d", $group["id"], NFO::NFO_FAILED, $this->nfolimit));
+				// Do NFOs with the primary NNTP provider.
+				else
+				{
+					// Mark files with no NFO as false.
+					$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus = %d AND origsubject NOT REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$'", $group["id"], NFO::NFO_FALSE, NFO::NFO_UNCHECKED, '%.nfo"%'));
 
-				// Mark files with incrementlimit as no NFO.
-				$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus < %d", $group["id"], NFO::NFO_FAILED, $this->incrementlimit));
+					// Mark files with incrementlimit as no NFO.
+					$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus BETWEEN %d AND %d", $group["id"], NFO::NFO_FAILED, ($this->incrementlimit - 5), $this->incrementlimit));
 
-				// Find files with nfo or (1/1) and an uncommon extension.
-				$farr = $db->query(sprintf("SELECT fhash, origsubject, id FROM files_%d WHERE nstatus BETWEEN (%d AND %d) AND origsubject REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$' ORDER BY utime DESC LIMIT %d", $group["id"], NFO::NFO_UNCHECKED, $this->incrementlimit, $this->nfolimit));
+					// Find files with nfo or (1/1) and an uncommon extension.
+					$farr = $db->query(sprintf("SELECT fhash, origsubject, id FROM files_%d WHERE nstatus BETWEEN (%d AND %d) AND origsubject REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$' ORDER BY utime DESC LIMIT %d", $group["id"], NFO::NFO_UNCHECKED, $this->incrementlimit, $this->nfolimit));
+				}
 				if (count($farr) > 0)
 				{
 					if ($this->echov)
@@ -74,14 +86,13 @@ Class nfo
 
 					foreach ($farr as $file)
 					{
-						$limit++;
-						if ($limit > $this->nfolimit)
+						if ($limit++ > $this->nfolimit)
 							break;
 
 						if (preg_match('/\.nfo"/i', $file["origsubject"]))
 							$newnfos += $this->getnfo($file, $group);
 						else
-							$newnfos += $this->getnfo($file, $group, "hidden");
+							$newnfos += $this->getnfo($file, $group, 'hidden');
 					}
 					if ($newnfos > 0)
 							echo "\nDownloaded $newnfos new NFOs.\n";
@@ -92,7 +103,11 @@ Class nfo
 				}
 				// Nothing to do.
 				else
+				{
+					if ($this->echov)
+						echo "No new NFOs to download.\n";
 					return false;
+				}
 			}
 		}
 		else
@@ -104,17 +119,20 @@ Class nfo
 	}
 
 	// Download NFO, insert it, check if hidden nfo is really an NFO.
-	public function getnfo($file, $group, $type='')
+	public function getnfo($file, $group, $type='', $alternate=false)
 	{
 		$db = new DB;
 		$nntp = new nntp;
 
 		// Connect, increment failed attempts if fails.
-		if ($nntp->doconnect() == false)
+		if ($nntp->doConnect(true, $alternate) == false)
 		{
 			if ($this->echov)
 				echo "-";
-			$this->increment($file["id"], $group["id"]);
+			if ($alternate === true)
+				$this->setdisabled($fle["id"], $group["id"]);
+			else
+				$this->increment($file["id"], $group["id"]);
 			return 0;
 		}
 
@@ -123,7 +141,10 @@ Class nfo
 		{
 			if ($this->echov)
 				echo "-";
-			$this->increment($file["id"], $group["id"]);
+			if ($alternate === true)
+				$this->setdisabled($fle["id"], $group["id"]);
+			else
+				$this->increment($file["id"], $group["id"]);
 			return 0;
 		}
 
@@ -133,7 +154,10 @@ Class nfo
 		{
 			if ($this->echov)
 				echo "-";
-			$this->increment($file["id"], $group["id"]);
+			if ($alternate === true)
+				$this->setdisabled($fle["id"], $group["id"]);
+			else
+				$this->increment($file["id"], $group["id"]);
 			return 0;
 		}
 
@@ -365,5 +389,12 @@ Class nfo
 	{
 		$db = new DB;
 		$db->queryExec(sprintf("UPDATE files_%d SET nstatus = nstatus -1 WHERE id = %d", $groupid, $fileid));
+	}
+
+	// Set NFO to disabled when we failed getting it with alternate NNTP provider.
+	public function setdisabled($fileid, $groupid)
+	{
+		$db = new DB;
+		$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE id = %d", $groupid, NFO::NFO_DISABLED, $fileid));
 	}
 }

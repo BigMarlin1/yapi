@@ -8,8 +8,11 @@ class Nntp extends Net_NNTP_Client
 	public $Compression = false;
 
 	// Make a NNTP connection.
-	public function doConnect($compression = true)
+	public function doConnect($compression=true, $alternate=false)
 	{
+		if ($alternate === true && NNTP_ALTERNATE == true)
+			return $this->doConnectA($compression);
+
 		if ($this->_isConnected())
 			return true;
 
@@ -310,20 +313,7 @@ class Nntp extends Net_NNTP_Client
 	public function dataError($nntp, $group, $comp=true, $alternate=false)
 	{
 		$nntp->doQuit();
-		if ($alternate === true)
-		{
-			if ($comp === false)
-				$nntp->doConnect(false);
-			else
-				$nntp->doConnect();
-		}
-		else
-		{
-			if ($comp === false)
-				$nntp->doConnectA(false);
-			else
-				$nntp->doConnectA();
-		}
+		$nntp->doConnect($comp, $alternate);
 
 		$data = $nntp->selectGroup($group);
 		if (PEAR::isError($data))

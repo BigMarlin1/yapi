@@ -79,16 +79,8 @@ Class headers
 	public function forward($group)
 	{
 		$nntp = new Nntp;
-		if ($this->alternate == true)
-		{
-			if ($nntp->doConnectA() === false)
-				return false;
-		}
-		else
-		{
-			if ($nntp->doConnect() === false)
-				return false;
-		}
+		if ($nntp->doConnect(true, $this->alternate) === false)
+			return false;
 
 		$gover = $nntp->selectGroup($group["name"]);
 		if(PEAR::isError($gover))
@@ -214,16 +206,8 @@ Class headers
 	public function backfill($group, $headers)
 	{
 		$nntp = new Nntp;
-		if ($this->alternate == true)
-		{
-			if ($nntp->doConnectA() === false)
-				return false;
-		}
-		else
-		{
-			if ($nntp->doConnect() === false)
-				return false;
-		}
+		if ($nntp->doConnect(true, $this->alternate) === false)
+			return false;
 
 		$gover = $nntp->selectGroup($group["name"]);
 		if(PEAR::isError($gover))
@@ -353,16 +337,8 @@ Class headers
 		$ustart = microtime(true);
 		// Connect to usenet.
 		$nntp = new Nntp;
-		if ($this->alternate == true)
-		{
-			if ($nntp->doConnectA() === false)
-				return false;
-		}
-		else
-		{
-			if ($nntp->doConnect() === false)
-				return false;
-		}
+		if ($nntp->doConnect(true, $this->alternate) === false)
+			return false;
 
 		// Select the group, reconnect if there's an error.
 		$gc = $nntp->selectGroup($group["name"]);
@@ -378,10 +354,7 @@ Class headers
 		if(PEAR::isError($msgs))
 		{
 			$nntp->doQuit();
-			if ($this->alternate == true)
-				$nntp->doConnectA(false);
-			else
-				$nntp->doConnect(false);
+			$nntp->doConnect(false, $this->alternate);
 
 			$gc = $nntp->selectGroup($group["name"]);
 			if(PEAR::isError($gc))

@@ -10,6 +10,8 @@ while :
 do
 	cd $cli_dir
 	$php $cli_dir/update_headers.php all false
+	# If you have a second nntp provider uncomment the next line.
+	$php $cli_dir/update_headers.php all true
 
 echo "Sleeping for $sleep seconds."
 sleep  $sleep

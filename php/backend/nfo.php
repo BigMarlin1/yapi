@@ -1,12 +1,12 @@
 <?php
-require_once("config.php");
-require_once(PHP_DIR."backend/db.php");
-require_once(PHP_DIR."backend/groups.php");
-require_once(PHP_DIR."backend/nntp.php");
-require_once(PHP_DIR."backend/rarinfo/par2info.php");
-require_once(PHP_DIR."backend/rarinfo/rarinfo.php");
-require_once(PHP_DIR."backend/rarinfo/sfvinfo.php");
-require_once(PHP_DIR."backend/rarinfo/zipinfo.php");
+require_once('config.php');
+require_once(PHP_DIR.'backend/db.php');
+require_once(PHP_DIR.'backend/groups.php');
+require_once(PHP_DIR.'backend/nntp.php');
+require_once(PHP_DIR.'backend/rarinfo/par2info.php');
+require_once(PHP_DIR.'backend/rarinfo/rarinfo.php');
+require_once(PHP_DIR.'backend/rarinfo/sfvinfo.php');
+require_once(PHP_DIR.'backend/rarinfo/zipinfo.php');
 
 /*
  * Class for fetching NFO files and storing them in the DB.
@@ -39,18 +39,18 @@ Class nfo
 	{
 		if ($alternate === true)
 		{
-			if (NNTP_ALTERNATE == true)
+			if (NNTP_ALTERNATE === true)
 				$this->alternate = true;
 			else
 				exit("ERROR: You must set NNTP_ALTERNATE to true in config.php to fetch NFO's using an alternate NNTP provider.\n");
 
 			if ($this->echov)
-				echo "Starting to look up to ".$this->nfolimit." previous NFOs that failed with primary NNTP provider.\n- = no NFO ;; + = NFO ;; * = Hidden NFO ;; _ no Hidden NFO\n";
+				echo 'Starting to look up to '.$this->nfolimit." previous NFOs that failed with primary NNTP provider.\n- = no NFO ;; + = NFO ;; * = Hidden NFO ;; _ no Hidden NFO\n";
 		}
 		else
 		{
 			if ($this->echov)
-			echo "Starting to look up to ".$this->nfolimit." new NFOs.\n- = failed to download NFO ;; + = NFO downloaded ;; * = hidden NFO downloaded ;; _ unable to determine if it is an NFO\n";
+			echo 'Starting to look up to '.$this->nfolimit." new NFOs.\n- = failed to download NFO ;; + = NFO downloaded ;; * = hidden NFO downloaded ;; _ unable to determine if it is an NFO\n";
 		}
 
 		$groups = new groups;
@@ -66,30 +66,30 @@ Class nfo
 
 				// Find NFOs that have previously failed downloading using the alternate NNTP provider.
 				if ($alternate === true)
-					$farr = $db->query(sprintf("SELECT fhash, origsubject, id FROM files_%d WHERE nstatus = %d ORDER BY utime DESC LIMIT %d", $group["id"], NFO::NFO_FAILED, $this->nfolimit));
+					$farr = $db->query(sprintf('SELECT fhash, origsubject, id FROM files_%d WHERE nstatus = %d ORDER BY utime DESC LIMIT %d', $group['id'], NFO::NFO_FAILED, $this->nfolimit));
 				// Do NFOs with the primary NNTP provider.
 				else
 				{
 					// Mark files with no NFO as false.
-					$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus = %d AND origsubject NOT REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$'", $group["id"], NFO::NFO_FALSE, NFO::NFO_UNCHECKED, '%.nfo"%'));
+					$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus = %d AND origsubject NOT REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$'", $group['id'], NFO::NFO_FALSE, NFO::NFO_UNCHECKED, '%.nfo"%'));
 
 					// Mark files with incrementlimit as no NFO.
-					$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus BETWEEN %d AND %d", $group["id"], NFO::NFO_FAILED, ($this->incrementlimit - 5), $this->incrementlimit));
+					$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE nstatus BETWEEN %d AND %d', $group['id'], NFO::NFO_FAILED, ($this->incrementlimit - 5), $this->incrementlimit));
 
 					// Find files with nfo or (1/1) and an uncommon extension.
-					$farr = $db->query(sprintf("SELECT fhash, origsubject, id FROM files_%d WHERE nstatus BETWEEN (%d AND %d) AND origsubject REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$' ORDER BY utime DESC LIMIT %d", $group["id"], NFO::NFO_UNCHECKED, $this->incrementlimit, $this->nfolimit));
+					$farr = $db->query(sprintf("SELECT fhash, origsubject, id FROM files_%d WHERE nstatus BETWEEN (%d AND %d) AND origsubject REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$' ORDER BY utime DESC LIMIT %d", $group['id'], NFO::NFO_UNCHECKED, $this->incrementlimit, $this->nfolimit));
 				}
 				if (count($farr) > 0)
 				{
 					if ($this->echov)
-						echo "Looking up ".count($farr)." NFOs for group ".$group["name"].".\n";
+						echo 'Looking up '.count($farr).' NFOs for group '.$group['name'].".\n";
 
 					foreach ($farr as $file)
 					{
 						if ($limit++ > $this->nfolimit)
 							break;
 
-						if (preg_match('/\.nfo"/i', $file["origsubject"]))
+						if (preg_match('/\.nfo"/i', $file['origsubject']))
 							$newnfos += $this->getnfo($file, $group);
 						else
 							$newnfos += $this->getnfo($file, $group, 'hidden');
@@ -128,67 +128,67 @@ Class nfo
 		if ($nntp->doConnect(true, $alternate) == false)
 		{
 			if ($this->echov)
-				echo "-";
+				echo '-';
 			if ($alternate === true)
-				$this->setdisabled($fle["id"], $group["id"]);
+				$this->setdisabled($fle['id'], $group['id']);
 			else
-				$this->increment($file["id"], $group["id"]);
+				$this->increment($file['id'], $group['id']);
 			return 0;
 		}
 
-		$part = $db->queryOneRow(sprintf("SELECT messid FROM parts_%d WHERE fileid = %d LIMIT 1", $group["id"], $file["id"]));
+		$part = $db->queryOneRow(sprintf('SELECT messid FROM parts_%d WHERE fileid = %d LIMIT 1', $group['id'], $file['id']));
 		if ($part === false)
 		{
 			if ($this->echov)
-				echo "-";
+				echo '-';
 			if ($alternate === true)
-				$this->setdisabled($fle["id"], $group["id"]);
+				$this->setdisabled($fle['id'], $group['id']);
 			else
-				$this->increment($file["id"], $group["id"]);
+				$this->increment($file['id'], $group['id']);
 			return 0;
 		}
 
 		// Download the article.
-		$pnfo = $nntp->getMessage($group["name"], $part["messid"]);
+		$pnfo = $nntp->getMessage($group['name'], $part['messid']);
 		if ($pnfo == false)
 		{
 			if ($this->echov)
-				echo "-";
+				echo '-';
 			if ($alternate === true)
-				$this->setdisabled($fle["id"], $group["id"]);
+				$this->setdisabled($fle['id'], $group['id']);
 			else
-				$this->increment($file["id"], $group["id"]);
+				$this->increment($file['id'], $group['id']);
 			return 0;
 		}
 
-		if ($type == "hidden")
+		if ($type == 'hidden')
 		{
 			if ($this->checknfo($pnfo) === true)
 			{
 				// Insert NFO into DB.
-				$db->queryExec(sprintf("INSERT INTO filenfo (nfo, fhash) VALUES (compress(%s), %s)", $db->escapeString($pnfo), $db->escapeString( $file["fhash"])));
+				$db->queryExec(sprintf('INSERT INTO filenfo (nfo, fhash) VALUES (compress(%s), %s)', $db->escapeString($pnfo), $db->escapeString( $file['fhash'])));
 				// Update the file.
-				$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE id = %d", $group["id"], NFO::NFO_HIDDEN, $file["id"]));
+				$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE id = %d', $group['id'], NFO::NFO_HIDDEN, $file['id']));
 				if ($this->echov)
-					echo "*";
+					echo '*';
 				return 1;
 			}
 			else
 			{
 				if ($this->echov)
-					echo "_";
+					echo '_';
 
 				// Set nstatus to possible nfo.
-				$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE id = %d", $group["id"], NFO::NFO_POSSIBLE, $file["id"]));
+				$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE id = %d', $group['id'], NFO::NFO_POSSIBLE, $file['id']));
 				return 0;
 			}
 		}
 		else
 		{
-			$db->queryExec(sprintf("INSERT INTO filenfo (nfo, fhash) VALUES (compress(%s), %s)", $db->escapeString($pnfo), $db->escapeString($file["fhash"])));
-			$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE id = %d", $group["id"], NFO::NFO_NORMAL, $file["id"]));
+			$db->queryExec(sprintf('INSERT INTO filenfo (nfo, fhash) VALUES (compress(%s), %s)', $db->escapeString($pnfo), $db->escapeString($file['fhash'])));
+			$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE id = %d', $group['id'], NFO::NFO_NORMAL, $file['id']));
 			if ($this->echov)
-				echo "+";
+				echo '+';
 			return 1;
 		}
 	}
@@ -231,14 +231,14 @@ Class nfo
 	public function returnNfo($chash, $groupid, $encode=false)
 	{
 		$db = new DB;
-		$nfo = $db->queryOneRow(sprintf("SELECT UNCOMPRESS(nfo) AS n FROM filenfo INNER JOIN files_%d as f ON f.fhash = filenfo.fhash WHERE f.chash = %s AND f.nstatus > 0 LIMIT 1", $groupid, $db->escapeString($chash)));
+		$nfo = $db->queryOneRow(sprintf('SELECT UNCOMPRESS(nfo) AS n FROM filenfo INNER JOIN files_%d as f ON f.fhash = filenfo.fhash WHERE f.chash = %s AND f.nstatus > 0 LIMIT 1', $groupid, $db->escapeString($chash)));
 		if ($nfo == false)
 			return false;
 
 		if ($encode == true)
-			return $this->cp437toUTF($nfo["n"]);
+			return $this->cp437toUTF($nfo['n']);
 		else
-			return $nfo["n"];
+			return $nfo['n'];
 	}
 
 	// Convert cp347 chars in a string to UTF.
@@ -388,13 +388,13 @@ Class nfo
 	public function increment($fileid, $groupid)
 	{
 		$db = new DB;
-		$db->queryExec(sprintf("UPDATE files_%d SET nstatus = nstatus -1 WHERE id = %d", $groupid, $fileid));
+		$db->queryExec(sprintf('UPDATE files_%d SET nstatus = nstatus -1 WHERE id = %d', $groupid, $fileid));
 	}
 
 	// Set NFO to disabled when we failed getting it with alternate NNTP provider.
 	public function setdisabled($fileid, $groupid)
 	{
 		$db = new DB;
-		$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE id = %d", $groupid, NFO::NFO_DISABLED, $fileid));
+		$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE id = %d', $groupid, NFO::NFO_DISABLED, $fileid));
 	}
 }

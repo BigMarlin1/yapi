@@ -1,6 +1,6 @@
 <?php
-require_once("../config.php");
-require_once(PHP_DIR."/backend/nfo.php");
+require_once('../config.php');
+require_once(PHP_DIR.'/backend/nfo.php');
 
 if ($argc != 3)
 	exit("Downloads NFOs for headers. 2 Arguments, both true or false.\n"
@@ -10,11 +10,11 @@ if ($argc != 3)
 		."ex. 2: php match_nfos.php false false\n");
 
 $echo = true;
-if ($argv[1] == "false")
+if ($argv[1] == 'false')
 	$echo = false;
 
 $alt = false;
-if ($argv[2] == "true")
+if ($argv[2] == 'true')
 	$alt = true;
 
 $n = new nfo($echo);

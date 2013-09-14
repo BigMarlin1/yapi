@@ -6,20 +6,20 @@
 include('raintpl/raintpl.php');
 
 // API functions.
-if (isset($_GET["t"]))
+if (isset($_GET['t']))
 {
-	if ($_GET["t"] == "search" || $_GET["t"] == "s" )
-		$function = "s";
-	elseif ( $_GET["t"] == "details" || $_GET["t"] == "d")
-		$function = "d";
-	elseif ( $_GET["t"] == "get" || $_GET["t"] == "g")
-		$function = "g";
-	elseif ($_GET["t"] == "caps" || $_GET["t"] == "c")
-		$function = "c";
+	if ($_GET['t'] == 'search' || $_GET['t'] == 's' )
+		$function = 's';
+	elseif ( $_GET['t'] == 'details' || $_GET['t'] == 'd')
+		$function = 'd';
+	elseif ( $_GET['t'] == 'get' || $_GET['t'] == 'g')
+		$function = 'g';
+	elseif ($_GET['t'] == 'caps' || $_GET['t'] == 'c')
+		$function = 'c';
 	else
 		showApiError(202);
 }
-elseif (isset($_GET["h"]))
+elseif (isset($_GET['h']))
 {
 	?>
 	<html>
@@ -46,57 +46,57 @@ else
 	showApiError(200);
 
 // Output is either json or xml.
-$outputtype = "xml";
-if (isset($_GET["o"]))
+$outputtype = 'xml';
+if (isset($_GET['o']))
 {
-	if ($_GET["o"] == "json")
-		$outputtype = "json";
+	if ($_GET['o'] == 'json')
+		$outputtype = 'json';
 }
 
 switch ($function)
 {
-	case "s":
-		if (!isset($_GET["q"]))
+	case 's':
+		if (!isset($_GET['q']))
 			showApiError(302);
-		if ($_GET["q"] == "")
+		if ($_GET['q'] == '')
 			showApiError(200);
 
 		$limit = 100;
-		if (isset($_GET["limit"]) && is_numeric($_GET["limit"]) && $_GET["limit"] < 100)
-			$limit = $_GET["limit"];
+		if (isset($_GET['limit']) && is_numeric($_GET['limit']) && $_GET['limit'] < 100)
+			$limit = $_GET['limit'];
 
 		$group = $minsize = $maxsize = $maxage = $offset = $sargs = 0;
-		if (isset($_GET["maxage"]) && $_GET["maxage"] != "" && is_numeric($_GET["maxage"]))
-			$maxage = $_GET["maxage"];
+		if (isset($_GET['maxage']) && $_GET['maxage'] != '' && is_numeric($_GET['maxage']))
+			$maxage = $_GET['maxage'];
 
-		if (isset($_GET["offset"]) && is_numeric($_GET["offset"]))
-			$offset = $_GET["offset"];
+		if (isset($_GET['offset']) && is_numeric($_GET['offset']))
+			$offset = $_GET['offset'];
 
-		if (isset($_GET["group"]))
+		if (isset($_GET['group']))
 		{
-			$group = $_GET["group"];
+			$group = $_GET['group'];
 			$group = str_replace('a.b', 'alt.binaries', $group);
 		}
 
-		if (isset($_GET["minsize"]) && is_numeric($_GET["minsize"]))
-			$minsize = $_GET["minsize"];
+		if (isset($_GET['minsize']) && is_numeric($_GET['minsize']))
+			$minsize = $_GET['minsize'];
 
-		if (isset($_GET["maxsize"]) && is_numeric($_GET["maxsize"]))
-			$maxsize = $_GET["maxsize"];
+		if (isset($_GET['maxsize']) && is_numeric($_GET['maxsize']))
+			$maxsize = $_GET['maxsize'];
 
-		if (isset($_GET["sort"]))
-			$sargs = explode('_', $_GET["sort"]);
+		if (isset($_GET['sort']))
+			$sargs = explode('_', $_GET['sort']);
 
-		require_once(PHP_DIR."backend/files.php");
+		require_once(PHP_DIR.'backend/files.php');
 		$files = new files;
-		$farr = $files->apisearch($_GET["q"], $maxage, $group, $offset, $limit, $minsize, $maxsize, $sargs);
+		$farr = $files->apisearch($_GET['q'], $maxage, $group, $offset, $limit, $minsize, $maxsize, $sargs);
 		$fcount = count($farr);
 		if ($fcount === 0)
 			showApiError(301);
 
-		if ($outputtype == "xml")
+		if ($outputtype == 'xml')
 		{
-			$tpl->assign(array('farr' => $farr, "offset" => $offset, "fcount" => $fcount, "web_name" => WEB_NAME, "admin_email" => ADMIN_EMAIL, "query" => $_GET["q"]));
+			$tpl->assign(array('farr' => $farr, 'offset' => $offset, 'fcount' => $fcount, 'web_name' => WEB_NAME, 'admin_email' => ADMIN_EMAIL, 'query' => $_GET['q']));
 			header("Content-type: text/xml");
 			$tpl->draw('apiresult');
 		}
@@ -106,17 +106,17 @@ switch ($function)
 		break;
 
 	// Get NZB. Optional search by group.
-	case "g":
-		if (!isset($_GET["id"]))
+	case 'g':
+		if (!isset($_GET['id']))
 			showApiError(200);
 
-		$gid = "all";
-		if (isset($_GET["gid"]))
-			$gid = $_GET["gid"];
+		$gid = 'all';
+		if (isset($_GET['gid']))
+			$gid = $_GET['gid'];
 
-		require_once(PHP_DIR."backend/files.php");
+		require_once(PHP_DIR.'backend/files.php');
 		$files = new files;
-		$farr = $files->getbychash($_GET["id"], $gid);
+		$farr = $files->getbychash($_GET['id'], $gid);
 		if ($farr !== false)
 			header("Location:".WWW_TOP."/getnzb.php?identifier=".$farr["chash"]."&subject=".urlencode($farr["subject"])."&group=".$farr["groupid"]."&type=multi");
 		else
@@ -124,23 +124,23 @@ switch ($function)
 		break;
 
 	// Get individual nzb details. Optional search by group.
-	case "d":
-		if (!isset($_GET["id"]))
+	case 'd':
+		if (!isset($_GET['id']))
 			showApiError(200);
 
-		$gid = "all";
-		if (isset($_GET["gid"]))
-			$gid = $_GET["gid"];
+		$gid = 'all';
+		if (isset($_GET['gid']))
+			$gid = $_GET['gid'];
 
-		require_once(PHP_DIR."backend/files.php");
+		require_once(PHP_DIR.'backend/files.php');
 		$files = new files;
-		$farr = $files->getbychash($_GET["id"], $gid);
+		$farr = $files->getbychash($_GET['id'], $gid);
 		if ($farr)
 			$reldata[] = $data;
 		else
 			showApiError(300);
 
-		if ($outputtype == "xml")
+		if ($outputtype == 'xml')
 		{
 			$tpl->assign('farr', $farr);
 			header("Content-type: text/xml");
@@ -153,10 +153,10 @@ switch ($function)
 		break;
 
 	// Capabilities request.
-	case "c":
-		require_once(PHP_DIR."backend/groups.php");
+	case 'c':
+		require_once(PHP_DIR.'backend/groups.php');
 		$groups = new groups;
-		$tpl->assign(array("groups" => $groups->getallsortname(), "web_name" => WEB_NAME, "admin_email" => ADMIN_EMAIL, "logopath" => $string.'/raintemplates/images/logo.png'));
+		$tpl->assign(array('groups' => $groups->getallsortname(), 'web_name' => WEB_NAME, 'admin_email' => ADMIN_EMAIL, 'logopath' => $string.'/raintemplates/images/logo.png'));
 		header("Content-type: text/xml");
 		$tpl->draw('apicaps');
 		break;
@@ -171,22 +171,22 @@ function showApiError($errcode=900, $errtext="")
 	switch ($errcode)
 	{
 		case 200:
-			$errtext = "Missing base parameter for the API (h or t is valid)";
+			$errtext = 'Missing base parameter for the API (h or t is valid)';
 			break;
 		case 202:
-			$errtext = "No such function, please see the API Help page";
+			$errtext = 'No such function, please see the API Help page';
 			break;
 		case 300:
-			$errtext = "No collection exists with this hash";
+			$errtext = 'No collection exists with this hash';
 			break;
 		case 301:
-			$errtext = "No collections found";
+			$errtext = 'No collections found';
 			break;
 		case 302:
-			$errtext = "You must supply a query for your search";
+			$errtext = 'You must supply a query for your search';
 			break;
 		default:
-			$errtext = "Unknown error";
+			$errtext = 'Unknown error';
 			break;
 	}
 

@@ -10,8 +10,8 @@
 			?>
 			<div id="content">
 				<div id="innercontent">
-					<h3>Browsing <?php echo $_GET["group"]; ?>:</h3>
-						<?php $grpid = $_GET["groupid"]; include('rainscripts/browsetable.php'); ?>
+					<h3>Browsing <?php echo $_GET['group']; ?>:</h3>
+						<?php $grpid = $_GET['groupid']; include('rainscripts/browsetable.php'); ?>
 				</div>
 			</div>
 			<?php include('rainscripts/footer.php'); ?>

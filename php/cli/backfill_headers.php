@@ -1,6 +1,6 @@
 <?php
-require_once("../config.php");
-require_once(PHP_DIR."/backend/headers.php");
+require_once('../config.php');
+require_once(PHP_DIR.'/backend/headers.php');
 
 $e = "Downloads old article headers.\n"
 		."Valid first argument: alt.binaries.groupname for 1 group or all for all groups\n"
@@ -17,10 +17,9 @@ if (strlen($argv[3]) < 4)
 	exit($e);
 
 $a = false;
-if ($argv[3] == "true")
+if ($argv[3] == 'true')
 	$a = true;
 
 $h = new headers(true);
-$h->main($argv[1], "backfill", $argv[2], $a);
-
+$h->main($argv[1], 'backfill', $argv[2], $a);
 ?>

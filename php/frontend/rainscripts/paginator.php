@@ -22,23 +22,20 @@ if ($thispage != $curpage)
 	$nextpage = $curpage + 1;
 }
 
-$tpl->assign("curpage", $curpage);
-$tpl->assign("lastpage", $lastpage);
-$tpl->assign("nextpage", $nextpage);
-$tpl->assign("maxpages", $maxpages);
+$tpl->assign(array('curpage' => $curpage, 'lastpage' => $lastpage, 'nextpage' => $nextpage, 'maxpages' => $maxpages));
 switch($type)
 {
-	case "browseall":
-		$tpl->draw("brallpaginator");
+	case 'browseall':
+		$tpl->draw('brallpaginator');
 		break;
-	case "browse":
-		$tpl->draw("brzpaginator");
+	case 'browse':
+		$tpl->draw('brzpaginator');
 		break;
-	case "nzbcontents":
-		$tpl->draw("nzbcpaginator");
+	case 'nzbcontents':
+		$tpl->draw('nzbcpaginator');
 		break;
-	case "search":
-		$tpl->draw("srchpaginator");
+	case 'search':
+		$tpl->draw('srchpaginator');
 		break;
 }
 ?>

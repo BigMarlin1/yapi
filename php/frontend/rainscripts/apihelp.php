@@ -1,3 +1,3 @@
 <?php
-$tpl->draw("apihelp");
+$tpl->draw('apihelp');
 ?>

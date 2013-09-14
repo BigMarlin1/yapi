@@ -52,13 +52,13 @@ define('MEMCACHE_COMPRESSION', true); // To compress the queries using zlib or n
 
 // The current path.
 define('PHP_DIR', realpath(dirname(__FILE__)).'/');
-define('WEB_FOOTER', 'Copyright &copy; '.date("Y").' '.WEB_NAME); // Text at the bottom of the page.
-define('NZB_FOOTER', WEB_NAME.', '.date("F j, Y, g:i a O")); // Footer at the bottom of a NZB file.
+define('WEB_FOOTER', 'Copyright &copy; '.date('Y').' '.WEB_NAME); // Text at the bottom of the page.
+define('NZB_FOOTER', WEB_NAME.', '.date('F j, Y, g:i a O')); // Footer at the bottom of a NZB file.
 
 // Web path.
-$www_top = str_replace("\\","/",dirname( $_SERVER['PHP_SELF'] ));
+$www_top = str_replace('\\','/',dirname( $_SERVER['PHP_SELF'] ));
 if(strlen($www_top) == 1)
-	$www_top = "";
+	$www_top = '';
 define('WWW_TOP', $www_top);
 
 // Cache time settings. For memcache / raintpl. Amount of time in seconds to keep cache results.

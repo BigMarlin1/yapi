@@ -1,7 +1,7 @@
 <?php
-require_once("config.php");
-require_once(PHP_DIR."/backend/db.php");
-require_once(PHP_DIR."/backend/Net_NNTP/NNTP/Client.php");
+require_once('config.php');
+require_once(PHP_DIR.'/backend/db.php');
+require_once(PHP_DIR.'/backend/Net_NNTP/NNTP/Client.php');
 
 class Nntp extends Net_NNTP_Client
 {
@@ -12,7 +12,7 @@ class Nntp extends Net_NNTP_Client
 	{
 		if ($alternate === true)
 		{
-			if (NNTP_ALTERNATE == true)
+			if (NNTP_ALTERNATE === true)
 				return $this->doConnectA($compression);
 			else
 				return false;
@@ -22,7 +22,7 @@ class Nntp extends Net_NNTP_Client
 			return true;
 
 		$enc = $ret = $ret2 = $connected = false;
-		if (defined("NNTP_SSLENABLED") && NNTP_SSLENABLED == true)
+		if (defined('NNTP_SSLENABLED') && NNTP_SSLENABLED === true)
 			$enc = 'ssl';
 
 		$retries = 5;
@@ -38,18 +38,18 @@ class Nntp extends Net_NNTP_Client
 			if(PEAR::isError($ret))
 			{
 				if ($retries < 1)
-					echo "Cannot connect to server ".NNTP_SERVER.(!$enc ? " (nonssl) " : "(ssl) ").": (".$ret->getMessage().")\n";
+					echo 'Cannot connect to server '.NNTP_SERVER.(!$enc ? ' (nonssl) ' : '(ssl) ').': ('.$ret->getMessage().")\n";
 			}
 			else
 				$connected = true;
 
-			if($connected === true && $authent === false && defined("NNTP_USERNAME") && NNTP_USERNAME != "")
+			if($connected === true && $authent === false && defined('NNTP_USERNAME') && NNTP_USERNAME != '')
 			{
 				$ret2 = $this->authenticate(NNTP_USERNAME, NNTP_PASSWORD);
 				if(PEAR::isError($ret2))
 				{
 					if ($retries < 1)
-						echo "Cannot authenticate to server ".NNTP_SERVER.(!$enc ? " (nonssl) " : " (ssl) ")." - ".NNTP_USERNAME." (".$ret2->getMessage().")\n";
+						echo 'Cannot authenticate to server '.NNTP_SERVER.(!$enc ? ' (nonssl) ' : ' (ssl) ').' - '.NNTP_USERNAME.' ('.$ret2->getMessage().")\n";
 				}
 				else
 					$authent = true;
@@ -68,13 +68,13 @@ class Nntp extends Net_NNTP_Client
 	}
 
 	// Make a NNTP connection to the alternate NNTP server.
-	public function doConnectA($compression = true)
+	public function doConnectA($compression=true)
 	{
 		if ($this->_isConnected())
 			return true;
 
 		$enc = $ret = $ret2 = $connected = false;
-		if (defined("NNTPA_SSLENABLED") && NNTPA_SSLENABLED == true)
+		if (defined('NNTPA_SSLENABLED') && NNTPA_SSLENABLED === true)
 			$enc = 'ssl';
 
 		$retries = 5;
@@ -90,18 +90,18 @@ class Nntp extends Net_NNTP_Client
 			if(PEAR::isError($ret))
 			{
 				if ($retries < 1)
-					echo "Cannot connect to server ".NNTPA_SERVER.(!$enc ? " (nonssl) " : "(ssl) ").": (".$ret->getMessage().")\n";
+					echo 'Cannot connect to server '.NNTPA_SERVER.(!$enc ? ' (nonssl) ' : '(ssl) ').': ('.$ret->getMessage().")\n";
 			}
 			else
 				$connected = true;
 
-			if($connected === true && $authent === false && defined("NNTPA_USERNAME") && NNTPA_USERNAME != "")
+			if($connected === true && $authent === false && defined('NNTPA_USERNAME') && NNTPA_USERNAME != '')
 			{
 				$ret2 = $this->authenticate(NNTPA_USERNAME, NNTPA_PASSWORD);
 				if(PEAR::isError($ret2))
 				{
 					if ($retries < 1)
-						echo "Cannot authenticate to server ".NNTPA_SERVER.(!$enc ? " (nonssl) " : " (ssl) ")." - ".NNTPA_USERNAME." (".$ret2->getMessage().")\n";
+						echo 'Cannot authenticate to server '.NNTPA_SERVER.(!$enc ? ' (nonssl) ' : ' (ssl) ').' - '.NNTPA_USERNAME.' ('.$ret2->getMessage().")\n";
 				}
 				else
 					$authent = true;
@@ -191,14 +191,14 @@ class Nntp extends Net_NNTP_Client
 	function decodeYenc($yencodedvar)
 	{
 		$input = array();
-		preg_match("/^(=ybegin.*=yend[^$]*)$/ims", $yencodedvar, $input);
+		preg_match('/^(=ybegin.*=yend[^$]*)$/ims', $yencodedvar, $input);
 		if (isset($input[1]))
 		{
-			$ret = "";
-			$input = trim(preg_replace("/\r\n/im", "",  preg_replace("/(^=yend.*)/im", "", preg_replace("/(^=ypart.*\\r\\n)/im", "", preg_replace("/(^=ybegin.*\\r\\n)/im", "", $input[1], 1), 1), 1)));
+			$ret = '';
+			$input = trim(preg_replace('/\r\n/im', '',  preg_replace('/(^=yend.*)/im', '', preg_replace('/(^=ypart.*\\r\\n)/im', '', preg_replace('/(^=ybegin.*\\r\\n)/im', '', $input[1], 1), 1), 1)));
 
 			for ($chr = 0; $chr < strlen($input); $chr++)
-				$ret .= ($input[$chr] != "=" ? chr(ord($input[$chr]) - 42) : chr((ord($input[++$chr]) - 64) - 42));
+				$ret .= ($input[$chr] != '=' ? chr(ord($input[$chr]) - 42) : chr((ord($input[++$chr]) - 64) - 42));
 
 			return $ret;
 		}
@@ -247,14 +247,17 @@ class Nntp extends Net_NNTP_Client
 			$bytesreceived = strlen($buffer);
 			// If we got no bytes at all try one more time to pull data.
 			if ($bytesreceived == 0)
+			{
 				$buffer = fgets($this->_socket);
+				$bytesreceived = strlen($buffer);
+			}
 
 			// Get any socket error codes.
 			 $errorcode = socket_last_error();
 
 			// If the buffer is zero it's zero, return error.
 			if ($bytesreceived === 0)
-				return $this->throwError('No data returned.', 1000);
+				return $this->throwError('The NNTP server has returned no data.', 1000);
 
 			// Keep going if no errors.
 			if ($errorcode === 0)
@@ -263,7 +266,7 @@ class Nntp extends Net_NNTP_Client
 				$data .= $buffer;
 
 				// Update total bytes received.
-				$totalbytesreceived = $totalbytesreceived + $bytesreceived;
+				$totalbytesreceived += $bytesreceived;
 
 				// Check to see if we have the magic terminator on the byte stream.
 				$b1 = null;
@@ -276,7 +279,7 @@ class Nntp extends Net_NNTP_Client
 						{
 							// Compare the data to the empty string if the data is a compressed empty string. If it is, throw an error.
 							if ($data === $er1 || $data === $er2 || $data === $er3 || $data === $er4)
-								return $this->throwError('No data returned from the NNTP server. This is normal, the article is probably removed.', 1000);
+								return $this->throwError('The NNTP server has returned an empty article. This is normal, the article is probably missing/removed.', 1000);
 						}
 						// We found the terminator.
 						else
@@ -285,31 +288,30 @@ class Nntp extends Net_NNTP_Client
 				}
 			 }
 			 else
-				 return $this->throwError('Failed to read line from socket.', 1000);
+				 return $this->throwError('Socket error: '.socket_strerror($errorcode), 1000);
 
 			if ($completed === true)
 			{
 				// Check if the header is valid for a gzip stream, then decompress it.
-				if(ord($data[0]) == 0x78 && in_array(ord($data[1]), array(0x01,0x5e,0x9c,0xda)))
+				if (ord($data[0]) == 0x78 && in_array(ord($data[1]), array(0x01, 0x5e, 0x9c, 0xda)))
 					$decomp = @gzuncompress(mb_substr($data , 0 , -3, '8bit'));
 				else
-					return $this->throwError('Invalid header on the gzip stream.', 1000);
+					return $this->throwError('Unable to decompress the data, the header on the gzip stream is invalid.', 1000);
 
 				// Split the string of headers into and array of individual headers, then return it.
 				if ($decomp != false)
 					return explode("\r\n", trim($decomp));
 				else
 				{
-					$tries++;
 					// Try 5 times to decompress.
-					if ($tries > 5)
-						return $this->throwError('Decompression Failed, connection closed.', 1000);
+					if ($tries++ > 5)
+						return $this->throwError('Decompression Failed after 5 tries, connection closed.', 1000);
 				}
 			}
 		}
 		// Throw an error if we get out of the loop.
 		if (!feof($this->_socket))
-			return "\nError: unexpected fgets() fail.\n";
+			return "Error: Could not find the end-of-file pointer on the gzip stream.\n";
 
 		return $this->throwError('Decompression Failed, connection closed.', 1000);
 	}

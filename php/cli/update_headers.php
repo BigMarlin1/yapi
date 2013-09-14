@@ -1,5 +1,5 @@
 <?php
-require_once("../config.php");
+require_once('../config.php');
 require_once(PHP_DIR."/backend/headers.php");
 
 $e = 	"Downloads new article headers.\n"
@@ -11,14 +11,13 @@ $e = 	"Downloads new article headers.\n"
 if ($argc === 2 || !isset($argv[1]) || !isset($argv[2]))
 	exit($e);
 
-if (strlen($argv[1]) < 3 && ($argv[2] != "false" || $argv[2] != "true"))
+if (strlen($argv[1]) < 3 && ($argv[2] != 'false' || $argv[2] != 'true'))
 	exit($e);
 
 $a = false;
-if ($argv[2] == "true")
+if ($argv[2] == 'true')
 	$a = true;
 
 $h = new headers(true);
-$h->main($argv[1], "forward", '', $a);
-
+$h->main($argv[1], 'forward', '', $a);
 ?>

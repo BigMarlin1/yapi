@@ -1,5 +1,5 @@
 <?php
-if (isset($_GET["help"]))
+if (isset($_GET['help']))
 {
 	?>
 	<html>
@@ -12,7 +12,7 @@ if (isset($_GET["help"]))
 				?>
 				<div id="content">
 					<div id="innercontent">
-						<?php $tpl->draw("rsshelp"); ?>
+						<?php $tpl->draw('rsshelp'); ?>
 					</div>
 				</div>
 				<?php include('rainscripts/footer.php'); ?>
@@ -23,21 +23,20 @@ if (isset($_GET["help"]))
 }
 else
 {
-	require_once(PHP_DIR."backend/files.php");
+	require_once(PHP_DIR.'backend/files.php');
 	$files = new files;
-	if (isset($_GET["group"]))
+	if (isset($_GET['group']))
 	{
-		require_once(PHP_DIR."backend/groups.php");
+		require_once(PHP_DIR.'backend/groups.php');
 		$groups = new groups;
-		$gid = $groups->getid(str_replace('a.b', 'alt.binaries.', $_GET["group"]));
+		$gid = $groups->getid(str_replace('a.b', 'alt.binaries.', $_GET['group']));
 
 		$farr = $files->getallforgroup($gid, 0, RSS_LIMIT);
 	}
 	else
 		$farr = $files->getforbrowse(0, RSS_LIMIT);
 
-	$tpl->assign(array("farr" => $farr, "web_name" => WEB_NAME, "admin_email" => ADMIN_EMAIL));
-	$tpl->draw("rss");
+	$tpl->assign(array('farr' => $farr, 'web_name' => WEB_NAME, 'admin_email' => ADMIN_EMAIL));
+	$tpl->draw('rss');
 }
-
 ?>

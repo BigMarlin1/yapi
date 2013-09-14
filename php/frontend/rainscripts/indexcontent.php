@@ -1,3 +1,3 @@
 <?php
-$tpl->draw("indexcontent");
+$tpl->draw('indexcontent');
 ?>

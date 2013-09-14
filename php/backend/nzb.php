@@ -1,7 +1,7 @@
 <?
 /* Generate an NZB */
-require_once("../config.php");
-require_once(PHP_DIR."/backend/db.php");
+require_once('../config.php');
+require_once(PHP_DIR.'/backend/db.php');
 
 class nzb
 {
@@ -12,11 +12,11 @@ class nzb
 		$nzb = false;
 		switch ($type)
 		{
-			case "single":
-				$files = $db->query(sprintf("SELECT f.*, g.name AS groupname FROM files_%d f LEFT JOIN groups g ON g.id = f.groupid WHERE f.id = %d ORDER BY f.origsubject ASC", $groupid, $identifier)); // Single file.
+			case 'single':
+				$files = $db->query(sprintf('SELECT f.*, g.name AS groupname FROM files_%d f LEFT JOIN groups g ON g.id = f.groupid WHERE f.id = %d ORDER BY f.origsubject ASC', $groupid, $identifier)); // Single file.
 				break;
-			case "multi":
-				$files = $db->query(sprintf("SELECT f.*, g.name AS groupname FROM files_%d f LEFT JOIN groups g ON g.id = f.groupid WHERE f.chash = %s ORDER BY f.origsubject ASC", $groupid, $db->escapeString($identifier))); // Collection of files.
+			case 'multi':
+				$files = $db->query(sprintf('SELECT f.*, g.name AS groupname FROM files_%d f LEFT JOIN groups g ON g.id = f.groupid WHERE f.chash = %s ORDER BY f.origsubject ASC', $groupid, $db->escapeString($identifier))); // Collection of files.
 				break;
 		}
 
@@ -28,13 +28,13 @@ class nzb
 
 			foreach ($files as $file)
 			{
-				$nzb .= " <file poster=\"".htmlspecialchars($file["poster"], ENT_QUOTES, 'utf-8')."\" date=\"".$file["utime"]."\" subject=\"".htmlspecialchars($file["origsubject"], ENT_QUOTES, 'utf-8')." (1/".$file["parts"].")\">\n";
-				$nzb .= "  <groups>\n   <group>".$file["groupname"]."</group>\n  </groups>\n  <segments>\n";
+				$nzb .= " <file poster=\"".htmlspecialchars($file['poster'], ENT_QUOTES, 'utf-8')."\" date=\"".$file['utime']."\" subject=\"".htmlspecialchars($file['origsubject'], ENT_QUOTES, 'utf-8')." (1/".$file['parts'].")\">\n";
+				$nzb .= "  <groups>\n   <group>".$file['groupname']."</group>\n  </groups>\n  <segments>\n";
 
-				$parts = $db->query(sprintf("SELECT * FROM parts_%d WHERE fileid = %d ORDER BY part", $groupid, $file['id']));
+				$parts = $db->query(sprintf('SELECT * FROM parts_%d WHERE fileid = %d ORDER BY part', $groupid, $file['id']));
 				foreach ($parts as $part)
 				{
-					$nzb .= "   <segment bytes=\"".$part["psize"]."\" number=\"".$part["part"]."\">".htmlspecialchars($part["messid"], ENT_QUOTES, 'utf-8')."</segment>\n";
+					$nzb .= "   <segment bytes=\"".$part['psize']."\" number=\"".$part['part']."\">".htmlspecialchars($part['messid'], ENT_QUOTES, 'utf-8')."</segment>\n";
 				}
 				$nzb .= " </segments>\n </file>\n";
 			}

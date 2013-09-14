@@ -10,8 +10,8 @@
 			?>
 			<div id="content">
 				<div id="innercontent">
-					<h4><?php echo urldecode($_GET["subject"]); ?></h4>
-						<?php $chash = $_GET["chash"]; $group = $_GET["group"]; $subject = $_GET["subject"]; include('rainscripts/nzbcontents.php'); ?>
+					<h4><?php echo urldecode($_GET['subject']); ?></h4>
+						<?php $chash = $_GET['chash']; $group = $_GET['group']; $subject = $_GET['subject']; include('rainscripts/nzbcontents.php'); ?>
 				</div>
 			</div>
 			<?php include('rainscripts/footer.php'); ?>

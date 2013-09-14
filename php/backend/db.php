@@ -13,7 +13,7 @@ class DB
 	{
 		if (DB::$initialized === false)
 		{
-			if (defined("DB_PORT"))
+			if (defined('DB_PORT'))
 				$pdos = 'mysql:host='.DB_HOST.';port='.DB_PORT.';dbname='.DB_NAME.';charset=utf8';
 			else
 				$pdos = 'mysql:host='.DB_HOST.';dbname='.DB_NAME.';charset=utf8';
@@ -22,13 +22,13 @@ class DB
 				DB::$pdo = new PDO($pdos, DB_USER, DB_PASSWORD);
 				DB::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			} catch (PDOException $e) {
-				exit("Connection to the SQL server failed, error follows: (".$e->getMessage().")");
+				exit('Connection to the SQL server failed, error follows: ('.$e->getMessage().')');
 			}
 
 			DB::$initialized = true;
 		}
 		$this->memcached = false;
-		if (defined("MEMCACHE_ENABLED"))
+		if (defined('MEMCACHE_ENABLED'))
 		{
 			if (MEMCACHE_ENABLED === true)
 				$this->memcached = MEMCACHE_ENABLED;
@@ -39,7 +39,7 @@ class DB
 	public function escapeString($str)
 	{
 		if (is_null($str))
-			return "NULL";
+			return 'NULL';
 
 		return DB::$pdo->quote($str);
 	}
@@ -47,7 +47,7 @@ class DB
 	// For inserting a row. Returns last insert ID.
 	public function queryInsert($query)
 	{
-		if ($query=="")
+		if ($query == '')
 			return false;
 
 		try
@@ -63,7 +63,7 @@ class DB
 	// Used for deleting, updating (and inserting without needing the last insert id). Return the affected row count. http://www.php.net/manual/en/pdo.exec.php
 	public function queryExec($query)
 	{
-		if ($query == "")
+		if ($query == '')
 			return false;
 
 		try {
@@ -78,7 +78,7 @@ class DB
 	// Optional: Pass true to cache the result with memcache.
 	public function query($query, $memcache=false, $mexpiry=CACHE_LEXPIRY)
 	{
-		if ($query == "")
+		if ($query == '')
 			return false;
 
 		if ($memcache === true && $this->memcached === true)
@@ -127,7 +127,7 @@ class DB
 	// Query without returning an empty array like our function query(). http://php.net/manual/en/pdo.query.php
 	public function queryDirect($query)
 	{
-		if ($query == "")
+		if ($query == '')
 			return false;
 
 		try {
@@ -143,17 +143,17 @@ class DB
 	public function optimise($admin=false)
 	{
 		$tablecnt = 0;
-		$alltables = $this->query("SHOW table status WHERE Data_free > 0");
+		$alltables = $this->query('SHOW table status WHERE Data_free > 0');
 		$tablecnt = count($alltables);
 		foreach ($alltables as $table)
 		{
 			if ($admin === false)
-				echo "Optimizing table: ".$table['Name'].".\n";
-			if (strtolower($table['Engine']) == "myisam")
-				$this->queryDirect("REPAIR TABLE `".$table['Name']."`");
-			$this->queryDirect("OPTIMIZE TABLE `".$table['Name']."`");
+				echo 'Optimizing table: '.$table['Name'].".\n";
+			if (strtolower($table['Engine']) == 'myisam')
+				$this->queryDirect('REPAIR TABLE '.$table['Name']);
+			$this->queryDirect('OPTIMIZE TABLE '.$table['Name']);
 		}
-		$this->queryDirect("FLUSH TABLES");
+		$this->queryDirect('FLUSH TABLES');
 		return $tablecnt;
 	}
 
@@ -162,24 +162,24 @@ class DB
 	{
 		$files = $parts = false;
 		try {
-			DB::$pdo->query(sprintf("SELECT * FROM files_%d LIMIT 1", $grpid));
+			DB::$pdo->query('SELECT * FROM files_'.$grpid.' LIMIT 1');
 			$files = true;
 		} catch (PDOException $e) {
-			if ($this->queryExec(sprintf("CREATE TABLE files_%d LIKE files", $grpid)) !== false)
+			if ($this->queryExec('CREATE TABLE files_'.$grpid.' LIKE files') !== false)
 				$files = true;
 		}
 
 		if ($files === true)
 		{
 			try {
-				DB::$pdo->query(sprintf("SELECT * FROM parts_%d LIMIT 1", $grpid));
+				DB::$pdo->query('SELECT * FROM parts_'.$grpid.' LIMIT 1');
 				$parts = true;
 			} catch (PDOException $e) {
-				if ($this->queryExec(sprintf("CREATE TABLE parts_%d LIKE parts", $grpid)) !== false)
+				if ($this->queryExec('CREATE TABLE parts_'.$grpid.' LIKE parts') !== false)
 					$parts = true;
 			}
 			if ($parts === true)
-				if ($this->queryExec(sprintf("UPDATE groups SET tstatus = 1 WHERE id = %d", $grpid)) !== false)
+				if ($this->queryExec('UPDATE groups SET tstatus = 1 WHERE id = '.$grpid) !== false)
 					return true;
 		}
 		return false;
@@ -269,7 +269,7 @@ class Mcached
 			throw new Exception('Extension "memcache" not found.');
 
 		$this->compression = MEMCACHE_COMPRESSED;
-		if (defined("MEMCACHE_COMPRESSION"))
+		if (defined('MEMCACHE_COMPRESSION'))
 		{
 			if (MEMCACHE_COMPRESSION === false)
 				$this->compression = false;

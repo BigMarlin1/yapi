@@ -1,3 +1,3 @@
 <?php
-$tpl->draw("nav");
+$tpl->draw('nav');
 ?>

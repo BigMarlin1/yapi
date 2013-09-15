@@ -268,7 +268,7 @@ Class files
 		}
 
 		// Split multi search terms.
-		$words = explode(' ', $subject);
+		$words = explode('.', $subject);
 		$subq = '';
 		$i = 0;
 		if (count($words) > 0)

@@ -43,16 +43,21 @@ class Nntp extends Net_NNTP_Client
 			else
 				$connected = true;
 
-			if($connected === true && $authent === false && defined('NNTP_USERNAME') && NNTP_USERNAME != '')
+			if ($connected === true && $authent === false && defined('NNTP_USERNAME'))
 			{
-				$ret2 = $this->authenticate(NNTP_USERNAME, NNTP_PASSWORD);
-				if(PEAR::isError($ret2))
-				{
-					if ($retries < 1)
-						echo 'Cannot authenticate to server '.NNTP_SERVER.(!$enc ? ' (nonssl) ' : ' (ssl) ').' - '.NNTP_USERNAME.' ('.$ret2->getMessage().")\n";
-				}
-				else
+				if (NNTP_USERNAME == '')
 					$authent = true;
+				else
+				{
+					$ret2 = $this->authenticate(NNTP_USERNAME, NNTP_PASSWORD);
+					if(PEAR::isError($ret2))
+					{
+						if ($retries < 1)
+							echo 'Cannot authenticate to server '.NNTP_SERVER.(!$enc ? ' (nonssl) ' : ' (ssl) ').' - '.NNTP_USERNAME.' ('.$ret2->getMessage().")\n";
+					}
+					else
+						$authent = true;
+				}
 			}
 			
 			if ($connected && $authent === true)
@@ -95,16 +100,21 @@ class Nntp extends Net_NNTP_Client
 			else
 				$connected = true;
 
-			if($connected === true && $authent === false && defined('NNTPA_USERNAME') && NNTPA_USERNAME != '')
+			if($connected === true && $authent === false && defined('NNTPA_USERNAME'))
 			{
-				$ret2 = $this->authenticate(NNTPA_USERNAME, NNTPA_PASSWORD);
-				if(PEAR::isError($ret2))
-				{
-					if ($retries < 1)
-						echo 'Cannot authenticate to server '.NNTPA_SERVER.(!$enc ? ' (nonssl) ' : ' (ssl) ').' - '.NNTPA_USERNAME.' ('.$ret2->getMessage().")\n";
-				}
-				else
+				if (NNTPA_USERNAME == '')
 					$authent = true;
+				else
+				{
+					$ret2 = $this->authenticate(NNTPA_USERNAME, NNTPA_PASSWORD);
+					if(PEAR::isError($ret2))
+					{
+						if ($retries < 1)
+							echo 'Cannot authenticate to server '.NNTPA_SERVER.(!$enc ? ' (nonssl) ' : ' (ssl) ').' - '.NNTPA_USERNAME.' ('.$ret2->getMessage().")\n";
+					}
+					else
+						$authent = true;
+				}
 			}
 			
 			if ($connected && $authent === true)

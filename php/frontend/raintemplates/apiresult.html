@@ -8,9 +8,9 @@
 	<webMaster>{$admin_email}</webMaster>
 	{loop="$farr"}
 	<item>
-		<title>{$value1.origsubject|xml_escape}</title>
-		<description>{$value1.name|xml_escape}</description>
-		<link>http://{$serveraddress}/browsenzb.php?chash={$value1.chash}&amp;group={$value1.groupid}&amp;subject={$value1.subject|xml_entities}</link>
+		<title>{$value1.subject|rss_clean}</title>
+		<description>Group: {$value1.name|xml_escape} Subject: {$value1.origsubject|xml_escape}</description>
+		<link>http://{$serveraddress}/getnzb.php?identifier={$value1.chash}&amp;subject={$value1.subject|xml_entities}&amp;group={$value1.groupid}&amp;type=multi</link>
 		<guid>{$value1.chash}</guid>
 		<pubDate>{$value1.utime|utdate}</pubDate>
 		<enclosure url="http://{$serveraddress}/getnzb.php?identifier={$value1.chash}&amp;subject={$value1.subject|xml_entities}&amp;group={$value1.groupid}&amp;type=multi" length="{$value1.tsize}" type="application/x-nzb" />

@@ -43,5 +43,11 @@ function xml_entities($url)
 // Encode a string to xml compliant.
 function xml_escape($str)
 {
-	return strtr($str, array('<' => '_', '>' => '_', '"' => '_', "'" => '_', '&' => '_', '#' => '_'));
+	return str_replace(array('<', '>', '"', "'", '&', '#'), '_', $str);
+}
+
+// Clean subject for sickbeard.
+function rss_clean($subject)
+{
+	return str_replace(array('_', '.', '-'), ' ', xml_escape($subject));
 }

@@ -343,7 +343,7 @@ Class files
 			if ($count == 0)
 				return false;
 			else if ($count === 1)
-				return $db->queryOneRow(sprintf('SELECT subject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_%d WHERE chash = %s GROUP BY chash', $tids[0]['id'], $db->escapeString($chash)));
+				return $db->queryOneRow(sprintf('SELECT subject, origsubject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_%d WHERE chash = %s GROUP BY chash', $tids[0]['id'], $db->escapeString($chash)));
 			else
 			{
 				$fstr = '';
@@ -352,11 +352,11 @@ Class files
 				{
 					$id = $tid['id'];
 					if ($i++ == $count)
-						$fstr .= '(SELECT subject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_'.$id.' WHERE chash = '.$db->escapeString($chash).' GROUP BY chash)';
+						$fstr .= '(SELECT subject, origsubject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_'.$id.' WHERE chash = '.$db->escapeString($chash).' GROUP BY chash)';
 					else
-						$fstr .= '(SELECT subject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_'.$id.' WHERE chash = '.$db->escapeString($chash).' GROUP BY chash) UNION ';
+						$fstr .= '(SELECT subject, origsubject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_'.$id.' WHERE chash = '.$db->escapeString($chash).' GROUP BY chash) UNION ';
 				}
-				return $db->queryOneRow('SELECT subject, chash, groupid, utime, size, nstatust FROM ('.$fstr.') AS files LIMIT 1');
+				return $db->queryOneRow('SELECT subject, origsubject, chash, groupid, utime, size, nstatust FROM ('.$fstr.') AS files LIMIT 1');
 			}
 		}
 		else
@@ -365,7 +365,7 @@ Class files
 			if ($gq == false)
 				return false;
 
-			return $db->queryOneRow(sprintf('SELECT subject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_%d WHERE chash = %s GROUP BY chash', $gq['id'], $db->escapeString($chash)));
+			return $db->queryOneRow(sprintf('SELECT subject, origsubject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_%d WHERE chash = %s GROUP BY chash', $gq['id'], $db->escapeString($chash)));
 		}
 	}
 }

@@ -114,8 +114,9 @@ class matchfiles
 		if (preg_match('/^(\[\d+\]-\[.+?\]-\[.+?\]-\[ ?(.+?) ?\] ?- ?\[)\d+\/\d+\] ?(- |")".+?""? yEnc$/', $subject, $match))
 			return array('hash' => $match[1], 'subject' => $match[2]);
 		//[#a.b.teevee] Mythbusters.S08E22.Arrow.Machine.Gun.1080p.WEB-DL.AAC2.0.H.264-XEON - [13/46] - "Mythbusters.S08E22.Arrow.Machine.Gun.1080p.WEB-DL.AAC2.0.H.264-XEON.part11.rar" yEnc 
-		else if (preg_match('/^(\[#a\.b\.teevee\] (.+?) - \[)\d+\/\d+\] - ".+?" yEnc$/', $subject, $match))
-			return array('hash' => $match[1], 'subject' => $match[2]);
+		//[#a.b.teevee@EFNet]-[ Under.the.Dome.S01E12.720p.WEB-DL.AAC2.0.H.264-NTb ]-[24/39] - "Under.the.Dome.S01E12.Exigent.Circumstances.720p.WEB-DL.AAC2.0.H.264-NTb.part21.rar" yEnc
+		else if (preg_match('/^(\[#a\.b\..+?\](-\[)? (.+?) (- |\]-)\[)\d+\/\d+\] - ".+?" yEnc$/', $subject, $match))
+			return array('hash' => $match[1], 'subject' => $match[3]);
 		//Aqua.Teen.Hunger.Force.S10E04.Banana.Planet.1080p.WEB-DL.DD5.1.H264-iT00NZ [01/15] - "Aqua.Teen.Hunger.Force.S10E04.Banana.Planet.1080p.WEB-DL.DD5.1.H264-iT00NZ.mkv.001" yEnc
 		//House.Hunters.International.S57E05.720p.hdtv.x264 [01/21] - "House.Hunters.International.S57E05.720p.hdtv.x264.nfo" yEnc
 		//The.Real.Housewives.Of.New.Jersey.S05E15.Zen.Things.I.Hate.About.You.WEB-DL.x264-RKSTR - [01/32] - "The.Real.Housewives.Of.New.Jersey.S05E15.Zen.Things.I.Hate.About.You.WEB-DL.x264-RKSTR.par2" yEnc

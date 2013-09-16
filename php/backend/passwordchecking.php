@@ -25,7 +25,7 @@ Class PChecking
 		$this->echov = $echo;
 		$this->debug = DEBUG_MESSAGES;
 		$this->pchecklimit = 100;
-		$this->incrementlimit = -5;
+		$this->incrementlimit = -MAX_DOWNLOAD;
 		$this->alternate = false;
 		$this->unrar = UNRAR_PATH;
 		$this->sevenzip = SEVENZIP_PATH;
@@ -78,7 +78,7 @@ Class PChecking
 					$db->queryExec(sprintf("UPDATE files_%d SET pstatus = %d WHERE pstatus = %d AND origsubject NOT REGEXP '[.]((r(ar|0[01])|z(ip|0[01]))[^a-zA-Z0-9.]|([01][01]|00[12])\")'", $group['id'], PChecking::PC_UNKOWN, PChecking::PC_UNCHECKED));
 
 					// Mark files with incrementlimit as failed.
-					$db->queryExec(sprintf('UPDATE files_%d SET pstatus = %d WHERE pstatus BETWEEN %d AND %d', $group['id'], PChecking::PC_FAILED, ($this->incrementlimit - 5), $this->incrementlimit));
+					$db->queryExec(sprintf('UPDATE files_%d SET pstatus = %d WHERE pstatus BETWEEN %d AND %d', $group['id'], PChecking::PC_FAILED, ($this->incrementlimit - abs($this->incrementlimit)), $this->incrementlimit));
 					
 					// Find files with rar or zip or .00" etc.
 					$farr = $db->query(sprintf("SELECT chash, fhash, origsubject, id, nstatus, groupid FROM files_%d WHERE origsubject REGEXP '[.]((r(ar|0[01])|z(ip|0[01]))[^a-zA-Z0-9]|([01][01]|00[12])\")' AND pstatus IN %s GROUP BY chash ORDER BY utime DESC LIMIT %d", $group['id'], $inq, $this->pchecklimit));
@@ -282,7 +282,7 @@ Class PChecking
 		if ($this->echov)
 			echo 'f';
 		if ($this->alternate === true)
-			$this->setsetstatus($fhash, $groupid, PChecking::PC_UNKOWN);
+			$this->setstatus($fhash, $groupid, PChecking::PC_UNKOWN);
 		else
 			$this->increment($fhash, $groupid);
 		return 0;

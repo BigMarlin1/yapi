@@ -29,7 +29,7 @@ Class nfo
 		$this->echov = $echo;
 		$this->debug = DEBUG_MESSAGES;
 		$this->nfolimit = 100;
-		$this->incrementlimit = -5;
+		$this->incrementlimit = -MAX_DOWNLOAD;
 		$this->alternate = false;
 	}
 
@@ -81,7 +81,7 @@ Class nfo
 					$db->queryExec(sprintf("UPDATE files_%d SET nstatus = %d WHERE nstatus = %d AND origsubject NOT REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$'", $group['id'], NFO::NFO_FALSE, NFO::NFO_UNCHECKED));
 
 					// Mark files with incrementlimit as failed.
-					$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE nstatus BETWEEN %d AND %d', $group['id'], NFO::NFO_FAILED, ($this->incrementlimit - 5), $this->incrementlimit));
+					$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE nstatus BETWEEN %d AND %d', $group['id'], NFO::NFO_FAILED, ($this->incrementlimit - abs($this->incrementlimit)), $this->incrementlimit));
 
 					// Find files with nfo or (1/1) and an uncommon extension.
 					$farr = $db->query(sprintf("SELECT fhash, origsubject, id, groupid FROM files_%d WHERE origsubject REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$' AND nstatus IN %s ORDER BY utime DESC LIMIT %d", $group['id'], $inq, $this->nfolimit));
@@ -370,7 +370,7 @@ Class nfo
 		if ($this->echov)
 			echo '-';
 		if ($this->alternate === true)
-			$this->setsetstatus($fhash, $groupid, NFO::NFO_DISABLED);
+			$this->setstatus($fhash, $groupid, NFO::NFO_DISABLED);
 		else
 			$this->increment($fhash, $groupid);
 		return 0;

@@ -36,6 +36,7 @@ define('DEBUG_MESSAGES', false); // Turn on debug messages.
 define('UNRAR_PATH', ''); // Path to the non-free unrar binary. /usr/bin/unrar in ubuntu
 define('SEVENZIP_PATH', ''); // Path to the 7zip CLI binary. /usr/bin/7za in ubuntu
 define('STORE_FILES', false); // Store file names from inside of zip/rar into the DB.
+define('MAX_DOWNLOAD', 3); // Maximum amount of times to download an yEnc file (if it fails to download) when downloading nfos or checking for passwords.
 
 // Website settings.
 define('WEB_NAME', 'Yet Another PHP Indexer'); // Name of the website.

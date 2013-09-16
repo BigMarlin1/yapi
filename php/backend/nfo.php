@@ -102,9 +102,9 @@ Class nfo
 							$newnfos += $this->getnfo($file, $group, 'hidden');
 					}
 					if ($newnfos > 0)
-							echo "\nDownloaded $newnfos new NFOs.\n";
+						echo "\nDownloaded $newnfos new NFOs.\n";
 					else
-						echo "Downloaded no new NFOs.\n";
+						echo "\nDownloaded no new NFOs.\n";
 				}
 				// Nothing to do.
 				else

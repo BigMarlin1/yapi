@@ -380,13 +380,13 @@ Class nfo
 	public function increment($fhash, $groupid)
 	{
 		$db = new DB;
-		$db->queryExec(sprintf('UPDATE files_%d SET nstatus = nstatus -1 WHERE id = %d', $groupid, $db->escapeString($fhash)));
+		$db->queryExec(sprintf('UPDATE files_%d SET nstatus = nstatus -1 WHERE fhash = %s', $groupid, $db->escapeString($fhash)));
 	}
 
 	// Set NFO status.
 	public function setstatus($fhash, $groupid, $type)
 	{
 		$db = new DB;
-		$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE id = %d', $groupid, $type, $db->escapeString($fhash)));
+		$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE fhash = %s', $groupid, $type, $db->escapeString($fhash)));
 	}
 }

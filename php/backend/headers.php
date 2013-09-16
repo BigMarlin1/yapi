@@ -263,7 +263,7 @@ Class headers
 
 		// Update oldest time/article# in the groups table.
 		$db = new DB;
-		$row = $db->queryOneRow(sprintf('SELECT f.utime, p.anumber FROM files_%d f INNER JOIN parts_%d p ON p.fileid = f.id WHERE p.provider = %d ORDER BY f.utime ASC LIMIT 1', $group['id'], $group['id'], $provider));
+		$row = $db->queryOneRow(sprintf('SELECT p.anumber, f.utime FROM parts_%d p INNER JOIN files_%d f ON f.id = p.fileid  WHERE provider = %d ORDER BY anumber ASC LIMIT 1', $group['id'], $group['id'], $provider));
 		if ($row != false)
 			$db->queryExec(sprintf('UPDATE groups SET firstdate%s = %d, firstart%s = %d WHERE id = %d', $cols, $row['utime'], $cols, $row['anumber'], $group['id']));
 

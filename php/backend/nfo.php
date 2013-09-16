@@ -56,6 +56,14 @@ Class nfo
 		$garr = $groups->getstarted();
 		if (count($garr) > 0)
 		{
+			$i = $this->incrementlimit;
+			$inq = '(';
+			while ($i < 0)
+			{
+				$inq .= $i++.', ';
+			}
+			$inq .= ' 0)';
+
 			$db = new DB;
 			$limit = $newnfos = 0;
 			foreach ($garr as $group)
@@ -76,7 +84,7 @@ Class nfo
 					$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE nstatus BETWEEN %d AND %d', $group['id'], NFO::NFO_FAILED, ($this->incrementlimit - 5), $this->incrementlimit));
 
 					// Find files with nfo or (1/1) and an uncommon extension.
-					$farr = $db->query(sprintf("SELECT fhash, origsubject, id, groupid FROM files_%d WHERE nstatus BETWEEN (%d AND %d) AND origsubject REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$' ORDER BY utime DESC LIMIT %d", $group['id'], NFO::NFO_UNCHECKED, $this->incrementlimit, $this->nfolimit));
+					$farr = $db->query(sprintf("SELECT fhash, origsubject, id, groupid FROM files_%d WHERE origsubject REGEXP '[.][nN][fF][oO]\"|[.][0-9]+\".*[(]1[/]1[)]$' AND nstatus IN %s ORDER BY utime DESC LIMIT %d", $group['id'], $inq, $this->nfolimit));
 				}
 				if (count($farr) > 0)
 				{

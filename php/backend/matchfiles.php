@@ -130,6 +130,15 @@ class matchfiles
 		//(Dgpc) [00/36] - "The.X.Factor.AU.S05E19.x264-NoGRP.nzb" yEnc
 		else if (preg_match('/^\(Dgpc\) \[\d+(\/\d+\] - "(.+?))'.$this->e0.' yEnc$/', $subject, $match))
 			return array('hash' => $match[1], 'subject' => $match[2]);
+		//[ReadNfo]-[ Britain and Ireland's Next Top Model s09e11 ] - [09/16] - "britain.and.irelands.next.top.model.s09e11.part7.rar" yEnc
+		else if (preg_match('/^(\[ReadNfo\]-\[ (.+?) \] - \[)\d+\/\d+\] - ".+?" yEnc$/', $subject, $match))
+			return array('hash' => $match[1], 'subject' => $match[2]);
+		//Dispatches.The.Paedophile.MP.WEB-DL.H264-fatboy"Dispatches.The.Paedophile.MP.WEB-DL.H264-fatboy.nfo" yEnc
+		else if (preg_match('/^(([A-Z0-9].{4,}?-[a-zA-Z0-9]+)").+?" yEnc$/', $subject, $match))
+			return array('hash' => $match[1], 'subject' => $match[2]);
+		//(02/43) - The.Bridge.US.S01E10.1080p.WEB-DL.DD5.1.H.264-BS - "The.Bridge.US.S01E10.Old.Friends.1080p.WEB-DL.DD5.1.H.264-BS.part01.rar" - 1.66 GB - yEnc
+		else if (preg_match('/^\(\d+(\/\d+\) - ([A-Z0-9].{4,}?-[a-zA-Z0-9]+) - ").+?" - \d+[.,]\d+ [kmgKMG][bB] - yEnc$/', $subject, $match))
+			return array('hash' => $match[1], 'subject' => $match[2]);
 		//anckfheuwydj502 - [9/9] - "anckfheuwydj548.vol31+16.par2" yEnc
 		else if (preg_match('/^([a-z0-9]+ - \[)\d+\/\d+\] - ".+?" yEnc$/', $subject, $match))
 			return array('hash' => $match[1], 'subject' => $subject);

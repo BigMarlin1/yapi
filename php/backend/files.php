@@ -7,14 +7,30 @@ Class files
 	// For browsegroup and RSS. Cached with memcache medium expiry.
 	public function getallforgroup($groupid, $offset, $limit='')
 	{
-		$db = new DB;
-
 		$maxperpage = MAX_PERPAGE;
 		// For RSS.
 		if ($limit != '')
 			$maxperpage = $limit;
 
-		return $db->query(sprintf('SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, groups.name, groups.id AS groupid, MAX(nstatus) AS nstatust FROM files_%d INNER JOIN groups ON groups.id = groupid GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d', $groupid, $maxperpage, $offset), true, CACHE_MEXPIRY);
+		$db = new DB;
+		$startq = $db->query(sprintf('SELECT DISTINCT(chash) AS c FROM files_%d ORDER BY utime DESC LIMIT %d OFFSET %d', $groupid, $maxperpage, $offset));
+		$scount = count($startq);
+		if ($scount == 0)
+			return false;
+		else
+		{
+			$fstr = 'SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, groups.name, groups.id AS groupid, MAX(nstatus) AS nstatust FROM files_'.$groupid.' INNER JOIN groups ON groups.id = groupid WHERE chash IN (';
+			$now = 1;
+			foreach ($startq as $c)
+			{
+				if ($now++ < $scount)
+					$fstr .= "'".$c['c']."',";
+				else
+					$fstr .= "'".$c['c']."'";
+			}
+			$fstr .= ') GROUP BY chash ORDER BY utime DESC LIMIT '.$maxperpage;
+			return $db->query($fstr, true, CACHE_MEXPIRY);
+		}
 	}
 
 	// Get count of all files for browsegroup and RSS. Cached with memcache long expiry.

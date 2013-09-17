@@ -44,6 +44,7 @@ define('WEB_FOOTER', 'Copyright &copy; 2013 '.WEB_NAME); // Text at the bottom o
 define('MAX_PERPAGE', 50); // Maximum amount of releases per page.
 define('ADMIN_EMAIL', 'example@example.com'); // Email address for people to contact you.
 define('RSS_LIMIT', 100); // How many results to limit the RSS.
+define('HIDE_PASSWORDED', true); // Hide passworded results from the site.
 
 // Memcache settings.
 define('MEMCACHE_ENABLED', false); // Wether to use memcached or not. Memcache keeps a MySQL query result in ram.

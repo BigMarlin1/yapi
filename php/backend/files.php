@@ -12,8 +12,12 @@ Class files
 		if ($limit != '')
 			$maxperpage = $limit;
 
+		$ps = '';
+		if (HIDE_PASSWORDED === true)
+			$ps = 'WHERE pstatus > -50';
+
 		$db = new DB;
-		$startq = $db->query(sprintf('SELECT DISTINCT(chash) AS c FROM files_%d ORDER BY utime DESC LIMIT %d OFFSET %d', $groupid, $maxperpage, $offset));
+		$startq = $db->query(sprintf('SELECT DISTINCT(chash) AS c FROM files_%d %s ORDER BY utime DESC LIMIT %d OFFSET %d', $groupid, $ps, $maxperpage, $offset));
 		$scount = count($startq);
 		if ($scount == 0)
 			return false;
@@ -37,7 +41,11 @@ Class files
 	public function getcount($groupid, $limit='')
 	{
 		$db = new DB;
-		$cnt = $db->query('SELECT COUNT(DISTINCT(chash)) AS c FROM files_'.$groupid, true);
+		$ps = '';
+		if (HIDE_PASSWORDED === true)
+			$ps = 'WHERE pstatus > -50';
+
+		$cnt = $db->query(sprintf('SELECT COUNT(DISTINCT(chash)) AS c FROM files_%d %s', $groupid, $ps), true);
 		return $cnt[0]['c'];
 	}
 
@@ -59,6 +67,10 @@ Class files
 			$fstr = '';
 			$i = 1;
 
+			$ps = '';
+			if (HIDE_PASSWORDED === true)
+				$ps = 'WHERE pstatus > -50';
+
 			$maxperpage = MAX_PERPAGE;
 			// For RSS.
 			if ($limit != '')
@@ -71,7 +83,7 @@ Class files
 			foreach ($tids as $tid)
 			{
 				$id = $tid['id'];
-				$startq = $db->query(sprintf('SELECT DISTINCT(chash) AS c FROM files_%d ORDER BY utime DESC LIMIT %d OFFSET %d', $id, $max, $offset));
+				$startq = $db->query(sprintf('SELECT DISTINCT(chash) AS c FROM files_%d %s ORDER BY utime DESC LIMIT %d OFFSET %d', $id, $ps, $max, $offset));
 				$scount = count($startq);
 
 				if ($i++ == $count)
@@ -121,11 +133,15 @@ Class files
 	public function getbrowsecount()
 	{
 		$db = new DB;
+		$ps = '';
+		if (HIDE_PASSWORDED === true)
+			$ps = 'WHERE pstatus > -50';
+
 		$tids = $db->query('SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT '.MAX_PERPAGE);
 		$count = count($tids);
 		if ($count === 1)
 		{
-			$c = $db->queryOneRow('SELECT COUNT(DISTINCT(chash)) AS cnt FROM files_'.$tids[0]['id']);
+			$c = $db->queryOneRow(sprintf('SELECT COUNT(DISTINCT(chash)) AS cnt FROM files_%d %s', $tids[0]['id'], $ps));
 			return $c['cnt'];
 		}
 		else if ($count > 1)
@@ -137,11 +153,11 @@ Class files
 			{
 				$id = $tid['id'];
 				if ($i == 1)
-					$fstr .= '(SELECT COUNT(DISTINCT(chash)) FROM files_'.$id.') +';
+					$fstr .= '(SELECT COUNT(DISTINCT(chash)) FROM files_'.$id.' '.$ps.') +';
 				else if ($i == $count)
-					$fstr .= ' (SELECT COUNT(DISTINCT(chash)) FROM files_'.$id.')';
+					$fstr .= ' (SELECT COUNT(DISTINCT(chash)) FROM files_'.$id.' '.$ps.')';
 				else
-					$fstr .= ' (SELECT COUNT(DISTINCT(chash)) FROM files_'.$id.') +';
+					$fstr .= ' (SELECT COUNT(DISTINCT(chash)) FROM files_'.$id.' '.$ps.') +';
 				$i++;
 			}
 			$c = $db->queryOneRow('SELECT '.$fstr.' AS cnt');
@@ -160,6 +176,10 @@ Class files
 			$age = '';
 		else
 			$age = 'AND utime > '.(time() - ($age * 86400));
+
+		$ps = '';
+		if (HIDE_PASSWORDED === true)
+			$ps = 'AND pstatus > -50';
 
 		// Split multi search terms.
 		$words = explode(' ', $subject);
@@ -194,7 +214,7 @@ Class files
 			foreach ($tids as $tid)
 			{
 				$id = $tid['id'];
-				$startq = $db->query(sprintf('SELECT DISTINCT(chash) AS c FROM files_%d WHERE 1=1 %s %s ORDER BY utime DESC LIMIT %d OFFSET %d', $id, $subq, $age, $max, $offset));
+				$startq = $db->query(sprintf('SELECT DISTINCT(chash) AS c FROM files_%d WHERE 1=1 %s %s %s ORDER BY utime DESC LIMIT %d OFFSET %d', $id, $subq, $age, $ps, $max, $offset));
 				$scount = count($startq);
 
 				if ($i++ == $count)
@@ -237,7 +257,7 @@ Class files
 			return $db->query('SELECT files.*, groups.name, groups.id AS groupid FROM ('.$fstr.') AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT '.MAX_PERPAGE, true);
 		}
 		else
-			return $db->query(sprintf('SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d', $group, $subq, $age, MAX_PERPAGE, $offset));
+			return $db->query(sprintf('SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s %s GROUP BY chash ORDER BY utime DESC LIMIT %d OFFSET %d', $group, $subq, $age, $ps, MAX_PERPAGE, $offset));
 	}
 
 	// Count for search paginator. Cache with memcache long.
@@ -248,6 +268,10 @@ Class files
 			$age = '';
 		else
 			$age = 'AND utime > '.(time() - ($age * 86400));
+
+		$ps = '';
+		if (HIDE_PASSWORDED === true)
+			$ps = 'AND pstatus > -50';
 
 		// Split multi search terms.
 		$words = explode(' ', $subject);
@@ -275,7 +299,7 @@ Class files
 			$count = count($tids);
 			if ($count === 1)
 			{
-				$c = $db->queryOneRow(sprintf('SELECT COUNT(DISTINCT(chash)) AS cnt FROM files_%d WHERE 1=1 %s %s', $tids[0]["id"], $subq, $age));
+				$c = $db->queryOneRow(sprintf('SELECT COUNT(DISTINCT(chash)) AS cnt FROM files_%d WHERE 1=1 %s %s %s', $tids[0]["id"], $subq, $age, $ps));
 				return $c['cnt'];
 			}
 			else if ($count > 0)
@@ -287,11 +311,11 @@ Class files
 				{
 					$id = $tid['id'];
 					if ($i == 1)
-						$fstr .= sprintf('(SELECT COUNT(DISTINCT(chash)) FROM files_%d WHERE 1=1 %s %s) +', $id, $subq, $age);
+						$fstr .= sprintf('(SELECT COUNT(DISTINCT(chash)) FROM files_%d WHERE 1=1 %s %s %s) +', $id, $subq, $age, $ps);
 					else if ($i == $count)
-						$fstr .= sprintf(' (SELECT COUNT(DISTINCT(chash)) FROM files_%d WHERE 1=1 %s %s)', $id, $subq, $age);
+						$fstr .= sprintf(' (SELECT COUNT(DISTINCT(chash)) FROM files_%d WHERE 1=1 %s %s %s)', $id, $subq, $age, $ps);
 					else
-						$fstr .= sprintf(' (SELECT COUNT(DISTINCT(chash)) FROM files_%d WHERE 1=1 %s %s) +', $id, $subq, $age);
+						$fstr .= sprintf(' (SELECT COUNT(DISTINCT(chash)) FROM files_%d WHERE 1=1 %s %s %s) +', $id, $subq, $age, $ps);
 					$i++;
 				}
 				$c = $db->queryOneRow('SELECT '.$fstr.' AS cnt');
@@ -302,7 +326,7 @@ Class files
 		}
 		else
 		{
-			$c = $db->queryOneRow(sprintf('SELECT COUNT(DISTINCT(chash)) AS cnt FROM files_%d WHERE 1=1 %s %s', $group, $subq, $age));
+			$c = $db->queryOneRow(sprintf('SELECT COUNT(DISTINCT(chash)) AS cnt FROM files_%d WHERE 1=1 %s %s %s', $group, $subq, $age, $ps));
 			return $c['cnt'];
 		}
 	}
@@ -315,6 +339,10 @@ Class files
 		// Convert age to seconds.
 		if ($age > 0 && is_numeric($age))
 			$ages = 'AND utime > '.(time() - ($age * 86400));
+
+		$ps = '';
+		if (HIDE_PASSWORDED === true)
+			$ps = 'AND pstatus > -50';
 
 		// Sorting.
 		$sort = 'ORDER BY utime DESC';
@@ -387,9 +415,9 @@ Class files
 			{
 				$id = $tid['id'];
 				if ($i++ == $count)
-					$fstr .= sprintf('(SELECT *, SUM(fsize) AS tsize, SUM(partsa) AS tfiles, MAX(nstatus) AS nstatust FROM files_%d WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d)', $id, $subq, $ages, $minsizes, $maxsizes, $sort, $max, $offset);
+					$fstr .= sprintf('(SELECT *, SUM(fsize) AS tsize, SUM(partsa) AS tfiles, MAX(nstatus) AS nstatust FROM files_%d WHERE 1=1 %s %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d)', $id, $subq, $ages, $ps, $minsizes, $maxsizes, $sort, $max, $offset);
 				else
-					$fstr .= sprintf('(SELECT *, SUM(fsize) AS tsize, SUM(partsa) AS tfiles, MAX(nstatus) AS nstatust FROM files_%d WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d) UNION ', $id, $subq, $ages, $minsizes, $maxsizes, $sort, $max, $offset);
+					$fstr .= sprintf('(SELECT *, SUM(fsize) AS tsize, SUM(partsa) AS tfiles, MAX(nstatus) AS nstatust FROM files_%d WHERE 1=1 %s %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d) UNION ', $id, $subq, $ages, $ps, $minsizes, $maxsizes, $sort, $max, $offset);
 			}
 			return $db->query('SELECT files.*, groups.name, groups.id AS groupid, tsize, tfiles FROM ('.$fstr.') AS files INNER JOIN groups ON groups.id = files.groupid '.$sort.' LIMIT '.$limit);
 		}
@@ -399,7 +427,7 @@ Class files
 			if ($gq === false)
 				return array();
 
-			return $db->query(sprintf('SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS tsize, MAX(nstatus) AS nstatust FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d', $gq['id'], $subq, $ages, $minsizes, $maxsizes, $sort, $limit, $offset));
+			return $db->query(sprintf('SELECT *, groups.name, groups.id AS groupid, SUM(fsize) AS tsize, MAX(nstatus) AS nstatust FROM files_%d INNER JOIN groups ON groups.id = groupid WHERE 1=1 %s %s %s GROUP BY chash %s %s %s LIMIT %d OFFSET %d', $gq['id'], $subq, $ages, $ps, $minsizes, $maxsizes, $sort, $limit, $offset));
 		}
 	}
 

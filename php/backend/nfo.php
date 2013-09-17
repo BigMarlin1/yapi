@@ -154,7 +154,7 @@ Class nfo
 				if ($this->echov)
 					echo '_';
 
-				return $this->setstatus($file['hash'], $group['id'], NFO::NFO_POSSIBLE);
+				return $this->setstatus($file['fhash'], $group['id'], NFO::NFO_POSSIBLE);
 			}
 		}
 		else

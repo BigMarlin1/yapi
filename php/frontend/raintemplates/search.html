@@ -25,11 +25,13 @@
 		{loop="filearr"}
 		<tr class="row_{$counter%2+1}">
 			<td class="subject">
-				<a class="subject" style="text-decoration: none;" href="browsenzb.php?chash={$value1.chash}&group={$value1.groupid}&subject={$value1.subject|urlencode}">{$value1.subject}
+				<a class="subject" style="text-decoration: none;" href="browsenzb.php?chash={$value1.chash}&group={$value1.groupid}&subject={$value1.subject|urlencode}">{$value1.subject}</a>
 				{if="$value1.nstatust > 0"}
-					<a class="modal_nfo rndbtn" href="nfo.php?chash={$value1.chash}&group={$value1.groupid}" title="View Nfo" rel="nfo">Nfo</a>
+				<a class="modal_nfo rndbtn" href="nfo.php?chash={$value1.chash}&group={$value1.groupid}" title="View Nfo" rel="nfo">Nfo</a>
 				{/if}
-				</a>
+				{if="$value1.innerfiles > 0"}
+				<a class="modal_rar rndbtn" alt="{$value1.chash}" id="{$value1.groupid}">RAR</a>
+				{/if}
 			</td>
 			<td class="group">{$value1.name|abreplace}</td>
 			<td class="size">

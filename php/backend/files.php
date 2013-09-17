@@ -38,7 +38,7 @@ Class files
 			$fstr .= ') GROUP BY chash ORDER BY utime DESC LIMIT '.$maxperpage;
 			$result = $db->query($fstr, true, CACHE_MEXPIRY);
 			$db = null;
-			return result;
+			return $result;
 		}
 	}
 

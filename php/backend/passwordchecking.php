@@ -199,30 +199,31 @@ Class PChecking
 				if (STORE_FILES === true)
 					$this->addfile($filearr['fhash'], $filearr['groupid'], $file['name'], $file['size'], $file['date']);
 
-				if (empty($file['compressed']))
+				if ($filearr['nstatus'] == 0 && preg_match('/\.nfo/i', $file['name']))
 				{
-					if ($filearr['nstatus'] == 1)
+					// Make sure the collection has no NFO.
+					$ncheck = $db->queryOneRow(sprintf('SELECT MAX(nstatus) AS n FROM files_%d WHERE chash = %s', $filearr['groupid'], $db->escapeString($filearr['chash'])));
+					if ($nheck['n'] > 0)
 						continue;
-					else
+
+					if (empty($file['compressed']))
 					{
 						$data = $archive->getFileData($file['name'], $file['source']);
-						if (preg_match('/\.nfo/i', $data))
+						if($data == false)
+							continue;
+
+						$nfo = new nfo;
+						$nfocheck = $nfo->checknfo($data);
+						if ($nfocheck !== false)
 						{
+							$nfo->insertnfo($data, $filearr, NFO::NFO_RARINFO);
 							if ($this->debug && $this->echov)
 								echo 'DEBUG: File '.$filearr['id'].'|Group '.$filearr['groupid'].": Added an uncompressed NFO for this file.\n";
 
 							if ($this->echov)
 								echo 'n';
-
-							$nfo = new nfo;
-							$nfo->insertnfo($data, $filearr, NFO::NFO_RARINFO);
 						}
 					}
-				}
-				else
-				{
-					if ($filearr['nstatus'] == 1)
-						continue;
 					else
 					{
 						// Use unrar or 7zip or both.
@@ -245,17 +246,20 @@ Class PChecking
 							continue;
 
 						$archive->setExternalClients($pa);
-						$data = $archive->extractFile($file["name"]);
-						if ($data !== false && strlen($data) > 5);
+						$data = $archive->extractFile($file['name']);
+						if ($data == false)
+							continue;
+
+						$nfo = new nfo;
+						$nfocheck = $nfo->checknfo($data);
+						if ($nfocheck !== false)
 						{
+							$nfo->insertnfo($data, $filearr, NFO::NFO_RARINFO);
 							if ($this->debug && $this->echov)
 								echo 'DEBUG: File '.$filearr['id'].'|Group '.$filearr['groupid'].": Added an compressed NFO for this file.\n";
 
 							if ($this->echov)
 								echo 'n';
-
-							$nfo = new nfo;
-							$nfo->insertnfo($data, $filearr, NFO::NFO_RARINFO);
 						}
 					}
 				}

@@ -97,7 +97,7 @@ Class files
 				if ($i++ == $count)
 				{
 					if ($scount == 0)
-						$fstr = '(SELECT 1=1)';
+						$fstr = str_replace('UNION', '', $fstr);
 					else
 					{
 						$fstr .= '(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_'.$id.' WHERE chash IN (';
@@ -131,7 +131,7 @@ Class files
 					}
 				}
 			}
-			$result = $db->query('SELECT files.*, groups.name, groups.id AS groupid FROM ('.$fstr.') AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT '.$maxperpage, true);
+			$result = $db->query('SELECT files.*, groups.name, groups.id AS groupid FROM ('.$fstr.') AS files INNER JOIN groups ON groups.id = groupid ORDER BY utime DESC LIMIT '.$maxperpage, true);
 			$db = null;
 			return $result;
 		}
@@ -238,7 +238,7 @@ Class files
 				if ($i++ == $count)
 				{
 					if ($scount == 0)
-						$fstr = '(SELECT 1=1)';
+						$fstr = str_replace('UNION', '', $fstr);
 					else
 					{
 						$fstr .= '(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_'.$id.' WHERE chash IN (';

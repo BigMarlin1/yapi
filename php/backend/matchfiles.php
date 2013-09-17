@@ -101,7 +101,8 @@ class matchfiles
 	{
 		//[135615]-[FULL]-[#a.b.moovee]-[ Prince.Of.Darkness.REMASTERED.1987.BDRiP.x264-LiViDiTY ]-[08/34] - "ly-podarknesssd-sample.vol7+2.par2" yEnc
 		//[135767]-[FULL]-[#a.b.moovee@EFNet]-[Mr.Nobody.2009.Extended.1080p.BluRay.x264-CiNEFiLE - [59/91] - "mr.nobody.2009.extended.1080p.bluray.x264-cinefile.r56" yEnc
-		if (preg_match('/^(\[\d+\]-\[.+?\]-\[.+?\]-\[ ?(.+?) \]?- ?\[)\d+\/\d+\] ?(- |")".+?""? yEnc$/', $subject, $match))
+		// 	[135740]-[FULL]-[#a.b.moovee]-[ Germ.2013.1080p.BluRay.x264-iFPD ]--[REPOST][33/95] - "ifpd-germ.us-1080p.r18" yEnc
+		if (preg_match('/^(\[\d+\]-\[.+?\]-\[.+?\]-\[ ?(.+?) \]?-(-\[REPOST\]| )?\[)\d+\/\d+\] ?(- |")".+?""? yEnc$/', $subject, $match))
 			return array('hash' => $match[1], 'subject' => $match[2]);
 		//[86/97] - "135631-2.9" yEnc
 		//[035/100] - "capslockkey-0.4" yEnc

@@ -22,7 +22,7 @@ export nfo=false
 export backfill=false
 
 # Amount of headers to backfill per run.
-export bqty="40000"
+export bqty="20000"
 
 # If you have a second NNTP provider, set this to true.
 export alternate=false

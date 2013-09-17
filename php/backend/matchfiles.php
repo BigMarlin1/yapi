@@ -173,7 +173,10 @@ class matchfiles
 		else if (preg_match('/^([A-Z0-9].{4,} \(\d{4}\) .+? - \()\d+\/\d+\) "(.+?)'.$this->e0.' - yenc yEnc$/', $subject, $match))
 			return array('hash' => $match[1], 'subject' => $match[2]);
 		//(10/21) - Taarak.Mehta.Ka.Ooltah.Chashmah.S01E1229.Sep.17.2013.sdtv.tvrip.xvid-desitvforum - "Taarak.Mehta.Ka.Ooltah.Chashmah.S01E1229.Sep.17.2013.sdtv.tvrip.xvid-desitvforum .part08.rar" - 245.32 MB - yEnc
-		else if (preg_match('/^\(\d+(\/\d+\) - ([A-Z0-9].{4,}?-[a-zA-Z0-9]+) - ").+?" - \d+[.,]\d+ [kKmMgG][bB] - yEnc$/', $subject, $match))
+		else if (preg_match('/^\(\d+(\/\d+\) - ([A-Z0-9].{4,}?-[a-zA-Z0-9]+)\s+- ").+?" - \d+[.,]\d+ [kKmMgG][bB] - yEnc$/', $subject, $match))
+			return array('hash' => $match[1], 'subject' => $match[2]);
+		//Israeli AutoRarPar0011  [68/68] - "Shtesel.S01E11.720p.HDTV.x264-Silver007.vol255+220.par2" yEnc
+		else if (preg_match('/^[A-Z0-9].+? AutoRarPar\d+\s+\[\d+(\/\d+\] - "(.+?))'.$this->e0.' yEnc$/', $subject, $match))
 			return array('hash' => $match[1], 'subject' => $match[2]);
 		else
 			return $this->generic($subject);

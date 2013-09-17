@@ -55,10 +55,45 @@ Class files
 			foreach ($tids as $tid)
 			{
 				$id = $tid['id'];
+				$startq = $db->query(sprintf('SELECT DISTINCT(chash) AS c FROM files_%d ORDER BY utime DESC LIMIT %d OFFSET %d', $id, $max, $offset));
+				$scount = count($startq);
+
 				if ($i++ == $count)
-					$fstr .= '(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_'.$id.' GROUP BY chash ORDER BY utime DESC LIMIT '.$max.' OFFSET '.$offset.')';
+				{
+					if ($scount == 0)
+						$fstr = '(SELECT 1=1)';
+					else
+					{
+						$fstr .= '(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_'.$id.' WHERE chash IN (';
+						$now = 1;
+						foreach ($startq as $c)
+						{
+							if ($now++ < $scount)
+								$fstr .= "'".$c['c']."',";
+							else
+								$fstr .= "'".$c['c']."'";
+						}
+						$fstr .= ') GROUP BY chash ORDER BY utime DESC LIMIT '.$max.')';
+					}
+				}
 				else
-					$fstr .= '(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_'.$id.' GROUP BY chash ORDER BY utime DESC LIMIT '.$max.' OFFSET '.$offset.') UNION ';
+				{
+					if ($scount == 0)
+						continue;
+					else
+					{
+						$fstr .= '(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_'.$id.' WHERE chash IN (';
+						$now = 1;
+						foreach ($startq as $c)
+						{
+							if ($now++ < $scount)
+								$fstr .= "'".$c['c']."',";
+							else
+								$fstr .= "'".$c['c']."'";
+						}
+						$fstr .= ') GROUP BY chash ORDER BY utime DESC LIMIT '.$max.') UNION';
+					}
+				}
 			}
 			return $db->query('SELECT files.*, groups.name, groups.id AS groupid FROM ('.$fstr.') AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT '.$maxperpage, true);
 		}

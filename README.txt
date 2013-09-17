@@ -96,7 +96,7 @@ Change date.timezone (see php.net)
 # control+x when done in nano to save.
 
 # Create an apache2 config file.
-# ex.: sudo nano /etc/apache2/sites-available/yapi
+# ex.: sudo nano /etc/apache2/sites-available/yapi.conf
 # Paste the following in it (change the settings for your system):
 
 <VirtualHost *:80>

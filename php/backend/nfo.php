@@ -107,12 +107,6 @@ Class nfo
 					else
 						echo "\nDownloaded no new NFOs.\n";
 				}
-				// Nothing to do.
-				else
-				{
-					if ($this->echov)
-						echo 'No new NFOs to download for '.$group['name'].".\n";
-				}
 			}
 			$db = null;
 		}

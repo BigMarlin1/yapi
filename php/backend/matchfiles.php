@@ -17,6 +17,8 @@ class matchfiles
 				return $this->moovee($subject);
 			case 'alt.binaries.teevee':
 				return $this->teevee($subject);
+			case 'alt.binaries.tvseries':
+				return $this->tvseries($subject);
 			default:
 				return $this->generic($subject);
 		}
@@ -150,6 +152,29 @@ class matchfiles
 		//anckfheuwydj502 - [9/9] - "anckfheuwydj548.vol31+16.par2" yEnc
 		else if (preg_match('/^([a-z0-9]+ - \[)\d+\/\d+\] - ".+?" yEnc$/', $subject, $match))
 			return array('hash' => $match[1], 'subject' => $subject);
+		else
+			return $this->generic($subject);
+	}
+
+	// alt.binaries.tvseries
+	public function tvseries($subject)
+	{
+		//Burn.Notice.5x08.Brusca.Interruzione.ITA.DLMux.x264-NovaRip [01/18] - "burn.notice.5x08.ita.dlmux.x264-novarip.nfo" yEnc 
+		//Koselig.Med.Peis.S01.720p.HDTV.x264.SubPack.ENG-NorTV - "Koselig.Med.Peis.S01.720p.HDTV.x264.SubPack.ENG-NorTV.par2" yEnc
+		if (preg_match('/^(([A-Z0-9].{4,}?-[A-Za-z0-9]+) )(\[\d+\/\d+\] )?- ".+?" yEnc$/', $subject, $match))
+			return array('hash' => $match[1], 'subject' => $match[2]);
+		//(The Bold and the Beautiful (17-09-2013).par2) [01/24] - "The Bold and the Beautiful (17-09-2013).par2" yEnc
+		else if (preg_match('/^(\(([A-Z0-9].{4,}? \(\d+-\d+-\d{4}\))\.).+?\) \[\d+\/\d+\] - ".+?" yEnc$/', $subject, $match))
+			return array('hash' => $match[1], 'subject' => $match[2]);
+		//NBC Nightly News - Flash Video - 09-16-2013 [01/17] - "NBC Nightly News 09-16-2013.flv.par2" yEnc
+		else if (preg_match('/^(([A-Z0-9].{4,}? \d{2}-\d{2}-\d{4}) \[)\d+\/\d+\] - ".+?" yEnc$/', $subject, $match))
+			return array('hash' => $match[1], 'subject' => $match[2]);
+		//The Virgin Trade - (2006) Sex Lies and Trafficking - DVDRip XviD-Uncut - (1/15) "The.Virgin.Trade.-.Sex.Lies.And.Trafficking.-.2006.DVDRip.XviD-Uncut.nfo" - yenc yEnc
+		else if (preg_match('/^([A-Z0-9].{4,} \(\d{4}\) .+? - \()\d+\/\d+\) "(.+?)'.$this->e0.' - yenc yEnc$/', $subject, $match))
+			return array('hash' => $match[1], 'subject' => $match[2]);
+		//(10/21) - Taarak.Mehta.Ka.Ooltah.Chashmah.S01E1229.Sep.17.2013.sdtv.tvrip.xvid-desitvforum - "Taarak.Mehta.Ka.Ooltah.Chashmah.S01E1229.Sep.17.2013.sdtv.tvrip.xvid-desitvforum .part08.rar" - 245.32 MB - yEnc
+		else if (preg_match('/^\(\d+(\/\d+\) - ([A-Z0-9].{4,}?-[a-zA-Z0-9]+) - ").+?" - \d+[.,]\d+ [kKmMgG][bB] - yEnc$/', $subject, $match))
+			return array('hash' => $match[1], 'subject' => $match[2]);
 		else
 			return $this->generic($subject);
 	}

@@ -101,11 +101,6 @@ Class PChecking
 					else
 						echo "\n";
 				}
-				else
-				{
-					if ($this->echov)
-						echo 'No new files to check passwords for '.$group['name'].".\n";
-				}
 			}
 			$db = null;
 		}

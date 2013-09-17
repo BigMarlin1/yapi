@@ -37,6 +37,7 @@ CREATE TABLE groups
 
 INSERT INTO groups (name) VALUES ('alt.binaries.moovee');
 INSERT INTO groups (name) VALUES ('alt.binaries.teevee');
+INSERT INTO groups (name) VALUES ('alt.binaries.tvseries');
 
 /* This will only be used as a template, when a new group is started the table will be copied to files_groupid */
 DROP TABLE IF EXISTS files;

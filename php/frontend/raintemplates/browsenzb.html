@@ -56,7 +56,13 @@
 	{if="$file.nstatust > 0"}
 	<tr class="row_1">
 		<th>NFO:</th>
-		<td><a style="float:left;" class="modal_nfo rndbtn" href="nfo.php?chash={$file.chash}&group={$group.id}" title="View Nfo" rel="nfo">Nfo</a></td>
+		<td><a style="float:left;" class="modal_nfo rndbtn" href="nfo.php?chash={$file.chash}&group={$group.id}" title="View Nfo" rel="nfo">NFO</a></td>
+	</tr>
+	{/if}
+	{if="$file.innerfiles > 0"}
+	<tr class="row_2">
+		<th>RAR contents:</th>
+		<td><a style="float:left;" class="modal_rar rndbtn" alt="{$file.chash}" id="{$group.id}">RAR</a></td>
 	</tr>
 	{/if}
 </table>

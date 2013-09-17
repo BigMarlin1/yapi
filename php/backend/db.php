@@ -1,6 +1,6 @@
 <?php
 
-/* Class for handling connection to SQL database, querying etc using PDO.
+/* Class for handling connection to MySQL database using PDO.
  * Exceptions are caught and displayed to the user. */
 
 class DB
@@ -13,10 +13,9 @@ class DB
 	{
 		if (DB::$initialized === false)
 		{
+			$pdos = 'mysql:host='.DB_HOST.';dbname='.DB_NAME.';charset=utf8';
 			if (defined('DB_PORT'))
-				$pdos = 'mysql:host='.DB_HOST.';port='.DB_PORT.';dbname='.DB_NAME.';charset=utf8';
-			else
-				$pdos = 'mysql:host='.DB_HOST.';dbname='.DB_NAME.';charset=utf8';
+				$pdos .= ';port='.DB_PORT;
 
 			try {
 				DB::$pdo = new PDO($pdos, DB_USER, DB_PASSWORD);
@@ -50,8 +49,7 @@ class DB
 		if ($query == '')
 			return false;
 
-		try
-		{
+		try {
 			$ins = DB::$pdo->exec($query);
 			return DB::$pdo->lastInsertId();
 		} catch (PDOException $e) {
@@ -142,7 +140,6 @@ class DB
 	// Optimises/repairs tables on mysql. Vacuum/analyze on postgresql.
 	public function optimise($admin=false)
 	{
-		$tablecnt = 0;
 		$alltables = $this->query('SHOW table status WHERE Data_free > 0');
 		$tablecnt = count($alltables);
 		foreach ($alltables as $table)
@@ -312,3 +309,4 @@ class Mcached
 		return $this->m->get($this->key($query));
 	}
 }
+?>

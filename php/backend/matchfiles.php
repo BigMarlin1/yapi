@@ -61,10 +61,14 @@ class matchfiles
 				if ($unmatched %100 == 0 && $unmatched != 0)
 					echo '.';
 			}
+			$db = null;
 			echo "\n$matched files were rematched.\n";
 		}
 		else
+		{
+			$db = null;
 			exit ("No files are in the DB for this group.\n");
+		}
 	}
 
 	// Generic function.
@@ -147,3 +151,4 @@ class matchfiles
 			return $this->generic($subject);
 	}
 }
+?>

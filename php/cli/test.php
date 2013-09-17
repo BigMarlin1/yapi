@@ -7,6 +7,7 @@ require_once(PHP_DIR.'/backend/nntp.php');
 echo 'Testing the database connection:\n';
 $db = new DB;
 var_dump($db->query('SELECT 1 = 1'));
+$db = null;
 sleep(3);
 
 // Test the NNTP connection.
@@ -32,3 +33,4 @@ $nntp->doQuit();
 sleep(1);
 
 exit("Finished all tests.\n");
+?>

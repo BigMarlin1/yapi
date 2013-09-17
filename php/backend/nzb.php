@@ -40,6 +40,7 @@ class nzb
 			}
 			$nzb .= "</nzb>";
 		}
+		$db = null;
 		return $nzb;
 	}
 }

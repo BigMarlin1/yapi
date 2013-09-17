@@ -16,6 +16,4 @@ if (isset($argv[2]))
 }
 else
 	$mf->rematch($argv[1]);
-
-
-
+?>

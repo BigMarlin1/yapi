@@ -113,6 +113,7 @@ Class nfo
 						echo 'No new NFOs to download for '.$group['name'].".\n";
 				}
 			}
+			$db = null;
 		}
 		else
 		{
@@ -132,6 +133,7 @@ Class nfo
 
 		$db = new DB;
 		$part = $db->queryOneRow(sprintf('SELECT messid FROM parts_%d WHERE fileid = %d LIMIT 1', $group['id'], $file['id']));
+		$db = null;
 		if ($part === false)
 			return $this->failed($file['fhash'], $group['id']);
 
@@ -171,6 +173,7 @@ Class nfo
 		$db = new DB;
 		$db->queryExec(sprintf('INSERT INTO filenfo (nfo, fhash) VALUES (compress(%s), %s)', $db->escapeString($nfo), $db->escapeString($file['fhash'])));
 		$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE id = %d', $file['groupid'], $type, $file['id']));
+		$db = null;
 	}
 
 	// Check if it's an NFO file.
@@ -212,6 +215,7 @@ Class nfo
 	{
 		$db = new DB;
 		$nfo = $db->queryOneRow(sprintf('SELECT UNCOMPRESS(nfo) AS n FROM filenfo INNER JOIN files_%d as f ON f.fhash = filenfo.fhash WHERE f.chash = %s AND f.nstatus > 0 LIMIT 1', $groupid, $db->escapeString($chash)));
+		$db = null;
 		if ($nfo == false)
 			return false;
 
@@ -381,6 +385,7 @@ Class nfo
 	{
 		$db = new DB;
 		$db->queryExec(sprintf('UPDATE files_%d SET nstatus = nstatus -1 WHERE fhash = %s', $groupid, $db->escapeString($fhash)));
+		$db = null;
 	}
 
 	// Set NFO status.
@@ -388,5 +393,7 @@ Class nfo
 	{
 		$db = new DB;
 		$db->queryExec(sprintf('UPDATE files_%d SET nstatus = %d WHERE fhash = %s', $groupid, $type, $db->escapeString($fhash)));
+		$db = null;
 	}
 }
+?>

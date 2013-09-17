@@ -9,6 +9,7 @@ Class groups
 	{
 		$db = new DB;
 		$garr = $db->queryOneRow('SELECT name FROM groups WHERE id = '.$gid);
+		$db = null;
 		return $garr['name'];
 	}
 
@@ -17,6 +18,7 @@ Class groups
 	{
 		$db = new DB;
 		$garr = $db->queryOneRow('SELECT id FROM groups WHERE name = '.$db->escapeString($gname));
+		$db = null;
 		return $garr['id'];
 	}
 
@@ -38,14 +40,18 @@ Class groups
 			$q .= " AND name = '{$name}'";
 
 		$db = new DB;
-		return $db->query($q);
+		$result = $db->query($q);
+		$db = null;
+		return $result;
 	}
 
 	// Get all groups that have at least 1 file.
 	public function getstarted()
 	{
 		$db = new DB;
-		return $db->query('SELECT name, id FROM groups WHERE tstatus = 1 AND lastart > 0 ORDER BY name ASC');
+		$result = $db->query('SELECT name, id FROM groups WHERE tstatus = 1 AND lastart > 0 ORDER BY name ASC');
+		$db = null;
+		return $result;
 	}
 
 	// Return the amount of files indexed for the group. Cache result with memcache.
@@ -53,6 +59,7 @@ Class groups
 	{
 		$db = new DB;
 		$cnt = $db->query('SELECT COUNT(*) AS c FROM files_'.$gid, true);
+		$db = null;
 		return $cnt[0]['c'];
 	}
 
@@ -61,6 +68,7 @@ Class groups
 	{
 		$db = new DB;
 		$cnt = $db->query('SELECT COUNT(DISTINCT(chash)) AS c FROM files_'.$gid, true);
+		$db = null;
 		return $cnt[0]['c'];
 	}
 
@@ -68,7 +76,9 @@ Class groups
 	public function getallsortname()
 	{
 		$db = new DB;
-		return $db->query('SELECT * FROM groups ORDER BY name');
+		$result = $db->query('SELECT * FROM groups ORDER BY name');
+		$db = null;
+		return $result;
 	}
 
 	// Returns row(s) for group(s).
@@ -76,11 +86,23 @@ Class groups
 	{
 		$db = new DB;
 		if ($group == '')
-			return $db->query('SELECT * FROM groups');
+		{
+			$result = $db->query('SELECT * FROM groups');
+			$db = null;
+			return $result;
+		}
 		else if (is_numeric($group))
-			return $db->queryOneRow('SELECT * FROM groups WHERE id = '.$group);
+		{
+			$result = $db->queryOneRow('SELECT * FROM groups WHERE id = '.$group);
+			$db = null;
+			return $result;
+		}
 		else
-			return $db->queryOneRow('SELECT * FROM groups WHERE name = '.$db->escapeString($group));
+		{
+			$result = $db->queryOneRow('SELECT * FROM groups WHERE name = '.$db->escapeString($group));
+			$db = null;
+			return $result;
+		}
 	}
 
 	// Resets files / parts for the group(s).
@@ -114,6 +136,7 @@ Class groups
 				$done = 1;
 			}
 		}
+		$db = null;
 		return $done;
 	}
 
@@ -131,6 +154,9 @@ Class groups
 
 		$db->queryExec('UPDATE groups SET'.$t.$s.'WHERE name = '.$db->escapeString($gname));
 
-		return $db->queryOneRow('SELECT * FROM groups WHERE name = '.$db->escapeString($gname));
+		$result = $db->queryOneRow('SELECT * FROM groups WHERE name = '.$db->escapeString($gname));
+		$db = null;
+		return $result;
 	}
 }
+?>

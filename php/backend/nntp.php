@@ -343,3 +343,4 @@ class Nntp extends Net_NNTP_Client
 			return $data;
 	}
 }
+?>

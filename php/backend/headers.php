@@ -5,6 +5,10 @@ require_once(PHP_DIR.'/backend/groups.php');
 require_once(PHP_DIR.'/backend/matchfiles.php');
 require_once(PHP_DIR.'/backend/nntp.php');
 
+/*
+ * Downloads usenet article headers, stores them in the MySQL database.
+ */
+
 Class headers
 {
 	function headers($echo=false)
@@ -45,9 +49,15 @@ Class headers
 				{
 					$db = new DB;
 					if ($db->newtables($group['id']) === false)
-						exit("There is a problem creating new parts/files tables for this group.\n");
+					{
+						$db = null;
+						exit ("There is a problem creating new parts/files tables for this group.\n");
+					}
 					else
-						echo 'This is the first time running group '.$group['name'].", we created the required SQL tables for it.\nThe next time you run this script the group will start working.\n";
+					{
+						$db = null;
+						exit ('This is the first time running group '.$group['name'].", we created the required SQL tables for it.\nThe next time you run this script the group will start working.\n");
+					}
 				}
 				else
 				{
@@ -148,6 +158,8 @@ Class headers
 			$row = $db->queryOneRow(sprintf('SELECT f.utime, p.anumber FROM files_%d f INNER JOIN parts_%d p ON p.fileid = f.id WHERE p.provider = %d ORDER BY f.utime ASC LIMIT 1', $group['id'], $group['id'], $provider));
 			if ($row != false)
 				$db->queryExec(sprintf('UPDATE groups SET firstdate%s = %d, firstart%s = %d WHERE id = %d', $cols, $row['utime'], $cols, $row['anumber'], $group['id']));
+
+			$db = null;
 		}
 		return $ret;
 	}
@@ -267,6 +279,7 @@ Class headers
 		if ($row != false)
 			$db->queryExec(sprintf('UPDATE groups SET firstdate%s = %d, firstart%s = %d WHERE id = %d', $cols, $row['utime'], $cols, $row['anumber'], $group['id']));
 
+		$db = null;
 		return $ret;
 	}
 
@@ -489,7 +502,6 @@ Class headers
 						if ($parr !== false)
 							$db->queryExec(sprintf('UPDATE %s SET fsize = fsize + %d, partsa = partsa + %d WHERE id = %d', $group['ftname'], $parr['size'], $parr['parts'], $fileid));
 					}
-
 				}
 
 				// Update group's last article and date when going forward.
@@ -503,6 +515,7 @@ Class headers
 						$db->queryExec(sprintf('UPDATE groups SET lastart%s = %d, lastdate%s = %d WHERE id = %d', $cols, $newest, $cols, strtotime($newdate), $group['id']));
 				}
 
+				$db = null;
 				if ($done > 0)
 				{
 					if ($this->vecho)
@@ -518,9 +531,13 @@ Class headers
 			}
 			// No messages to process.
 			else
+			{
+				$db = null;
 				return false;
+			}
 		}
 		else
 			return false;
 	}
 }
+?>

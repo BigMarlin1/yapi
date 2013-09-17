@@ -102,6 +102,7 @@ Class PChecking
 						echo 'No new files to check passwords for '.$group['name'].".\n";
 				}
 			}
+			$db = null;
 		}
 		else
 		{
@@ -121,6 +122,7 @@ Class PChecking
 
 		$db = new DB;
 		$part = $db->queryOneRow(sprintf('SELECT messid FROM parts_%d WHERE fileid = %d ORDER BY part ASC LIMIT 1', $group['id'], $file['id']));
+		$db = null;
 		if ($part === false)
 			return $this->failed($file['fhash'], $group['id']);
 
@@ -274,6 +276,7 @@ Class PChecking
 		$db = new DB;
 		$db->queryExec(sprintf('INSERT IGNORE INTO innerfiles (ifname, ifsize, iftime, fhash) VALUES (%s, %d, %d, %s)', $db->escapeString($name), $size, $date, $db->escapeString($fhash)));
 		$db->queryExec(sprintf('UPDATE files_%d SET innerfiles = innerfiles + 1 WHERE fhash = %s', $groupid, $db->escapeString($fhash)));
+		$db = null;
 	}
 
 	// Send to increment or setstatus.
@@ -293,6 +296,7 @@ Class PChecking
 	{
 		$db = new DB;
 		$db->queryExec(sprintf('UPDATE files_%d SET pstatus = pstatus -1 WHERE fhash = %s', $groupid, $db->escapeString($fhash)));
+		$db = null;
 	}
 
 	// Set pass status.
@@ -300,6 +304,7 @@ Class PChecking
 	{
 		$db = new DB;
 		$db->queryExec(sprintf('UPDATE files_%d SET pstatus = %d WHERE fhash = %s', $groupid, $type, $db->escapeString($fhash)));
+		$db = null;
 	}
 
 	// Set the collection status so we dont run into this collection again.
@@ -307,5 +312,6 @@ Class PChecking
 	{
 		$db = new DB;
 		$db->queryExec(sprintf('UPDATE files_%d SET pstatus = %d WHERE chash = %s', $groupid, $type, $db->escapeString($chash)));
+		$db = null;
 	}
 }

@@ -65,7 +65,7 @@ Class nfo
 			$inq .= ' 0)';
 
 			$db = new DB;
-			$limit = $newnfos = 0;
+			$limit = 0;
 			foreach ($garr as $group)
 			{
 				if ($limit > $this->nfolimit)
@@ -88,6 +88,7 @@ Class nfo
 				}
 				if (count($farr) > 0)
 				{
+					$newnfos = 0;
 					if ($this->echov)
 						echo 'Looking up '.count($farr).' NFOs for '.$group['name'].".\n";
 

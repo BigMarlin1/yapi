@@ -63,7 +63,7 @@ Class PChecking
 			$inq .= ' 0)';
 
 			$db = new DB;
-			$limit = $passworded = 0;
+			$limit = 0;
 			foreach ($garr as $group)
 			{
 				if ($limit > $this->pchecklimit)
@@ -85,6 +85,7 @@ Class PChecking
 				}
 				if (count($farr) > 0)
 				{
+					$passworded = 0;
 					if ($this->echov)
 						echo 'Checking '.count($farr).' files for passwords for '.$group['name'].".\n";
 
@@ -95,6 +96,10 @@ Class PChecking
 
 						$passworded += $this->getFile($file, $group);
 					}
+					if ($passworded > 0)
+						echo "$passworded files had a password.\n";
+					else
+						echo "\n";
 				}
 				else
 				{

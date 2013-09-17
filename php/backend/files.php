@@ -368,6 +368,13 @@ Class files
 			return $db->queryOneRow(sprintf('SELECT subject, origsubject, chash, groupid, utime, SUM(fsize) AS size, MAX(nstatus) AS nstatust FROM files_%d WHERE chash = %s GROUP BY chash', $gq['id'], $db->escapeString($chash)));
 		}
 	}
+
+	// Return innerfiles by chash.
+	public function getrarfiles($chash, $group)
+	{
+		$db = new DB;
+		return $db->query(sprintf('SELECT i.ifname, i.ifsize, i.iftime FROM innerfiles i INNER JOIN files_%d f ON f.fhash = i.fhash WHERE f.chash = %s', $group, $db->escapeString($chash)));
+	}
 }
 
 ?>

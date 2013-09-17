@@ -158,6 +158,35 @@ a.nzb
 	-webkit-border-radius: 5px;
 }
 
+.modal_rar
+{
+	cursor:pointer;
+	float:right;
+	background-color: #000;
+	text-decoration: none;
+	color: #DDD;
+}
+
+.tooltiphead
+{
+	background-color:#A9DB66;
+	padding:5px;color:white;
+	font-weight:bold;
+	margin:-5px -10px 5px -10px;
+}
+
+.ui-tooltip ul
+{
+	padding:0;
+	margin:0;
+	line-height: 160%;
+}
+
+.ui-tooltip li
+{
+	list-style-type:none;
+}
+
 .modal_nfo
 {
 	float: right;

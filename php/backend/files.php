@@ -67,6 +67,7 @@ Class files
 	public function getforbrowse($offset, $limit='')
 	{
 		$db = new DB;
+		// Get all the id's from active groups.
 		$tids = $db->query('SELECT id FROM groups WHERE tstatus = 1 AND lastdate > 0 ORDER BY lastdate DESC LIMIT '.MAX_PERPAGE);
 		$count = count($tids);
 		if ($count > 0)
@@ -84,18 +85,23 @@ Class files
 				$maxperpage = $limit;
 
 			// Limit the limit on the subqueries depending on the amount of groups to speed up the query.
-			$max = ($maxperpage * 3) / $count;
+			$max = $maxperpage / $count;
+			$offset = $offset / $count;
 
+			// Loop over the groups, creating a inner query.
 			foreach ($tids as $tid)
 			{
 				$id = $tid['id'];
+				// Get all the chash's from every file table that is active.
 				$startq = $db->query(sprintf('SELECT DISTINCT(chash) AS c FROM files_%d %s ORDER BY utime DESC LIMIT %d OFFSET %d', $id, $ps, $max, $offset));
 				$scount = count($startq);
 
+				// Check if the current group is the last group.
 				if ($i++ == $count)
 				{
+					// If this is the last group and there were 0 results, remove the union part from the last string.
 					if ($scount == 0)
-						$fstr = str_replace('UNION', '', $fstr);
+						$fstr = preg_replace('/UNION$/', '', $fstr);
 					else
 					{
 						$fstr .= '(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_'.$id.' WHERE chash IN (';
@@ -107,11 +113,12 @@ Class files
 							else
 								$fstr .= "'".$c['c']."'";
 						}
-						$fstr .= ') GROUP BY chash ORDER BY utime DESC LIMIT '.$max.')';
+						$fstr .= ') GROUP BY chash ORDER BY utime DESC)';
 					}
 				}
 				else
 				{
+					// If there are no results, continue.
 					if ($scount == 0)
 						continue;
 					else
@@ -125,10 +132,11 @@ Class files
 							else
 								$fstr .= "'".$c['c']."'";
 						}
-						$fstr .= ') GROUP BY chash ORDER BY utime DESC LIMIT '.$max.') UNION';
+						$fstr .= ') GROUP BY chash ORDER BY utime DESC) UNION';
 					}
 				}
 			}
+			// If the string is empty return false.
 			if ($fstr == '')
 			{
 				$db = null;
@@ -233,7 +241,8 @@ Class files
 			$i = 1;
 
 			// Limit the limit on the subqueries depending on the amount of groups to speed up the query.
-			$max = (MAX_PERPAGE * 3) / $count;
+			$max = MAX_PERPAGE / $count;
+			$offset = $offset / $count;
 
 			foreach ($tids as $tid)
 			{
@@ -244,7 +253,7 @@ Class files
 				if ($i++ == $count)
 				{
 					if ($scount == 0)
-						$fstr = str_replace('UNION', '', $fstr);
+						$fstr = preg_replace('/UNION$/', '', $fstr);
 					else
 					{
 						$fstr .= '(SELECT *, SUM(fsize) AS size, SUM(parts) AS totalparts, SUM(partsa) AS actualparts, MAX(nstatus) AS nstatust FROM files_'.$id.' WHERE chash IN (';
@@ -256,7 +265,7 @@ Class files
 							else
 								$fstr .= "'".$c['c']."'";
 						}
-						$fstr .= ') GROUP BY chash ORDER BY utime DESC LIMIT '.$max.')';
+						$fstr .= ') GROUP BY chash ORDER BY utime DESC)';
 					}
 				}
 				else
@@ -274,7 +283,7 @@ Class files
 							else
 								$fstr .= "'".$c['c']."'";
 						}
-						$fstr .= ') GROUP BY chash ORDER BY utime DESC LIMIT '.$max.') UNION';
+						$fstr .= ') GROUP BY chash ORDER BY utime DESC) UNION';
 					}
 				}
 			}
@@ -453,7 +462,8 @@ Class files
 			$i = 1;
 			
 			// Limit the limit on the subqueries depending on the amount of groups to speed up the query.
-			$max = ($limit * 3) / $count;
+			$max = $limit / $count;
+			$offset = $offset / $count;
 
 			foreach ($tids as $tid)
 			{

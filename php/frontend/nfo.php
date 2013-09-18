@@ -7,7 +7,7 @@ else
 		echo 'ERROR: Must supply groupid.';
 	else
 	{
-		require_once('config.php');
+		require_once('../config.php');
 		require_once(PHP_DIR.'backend/nfo.php');
 		$n = new nfo;
 		$nfo = $n->returnNfo($_GET['chash'], $_GET['group'], true);

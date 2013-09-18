@@ -1,19 +1,19 @@
 <!DOCTYPE html>
-<?php include('raintpl/raintpl.php'); ?>
+<?php require_once('raintpl/raintpl.php'); ?>
 <html>
-	<?php include('rainscripts/head.php'); ?>
+	<?php require_once('rainscripts/head.php'); ?>
 	<body>
 		<div id="wrapper">
-			<?php 
-				include('rainscripts/header.php'); 
-				include('rainscripts/nav.php');
-			?>
+		<?php 
+			require_once('rainscripts/header.php'); 
+			require_once('rainscripts/nav.php');
+		?>
 			<div id="content">
 				<div id="innercontent">
-					<?php include('rainscripts/indexcontent.php'); ?>
+					<?php require_once('rainscripts/indexcontent.php'); ?>
 				</div>
 			</div>
-			<?php include('rainscripts/footer.php'); ?>
+			<?php require_once('rainscripts/footer.php'); ?>
 		</div>
 	</body>
 </html>

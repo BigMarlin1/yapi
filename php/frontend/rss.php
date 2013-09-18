@@ -1,4 +1,4 @@
 <?php
-include('raintpl/raintpl.php');
-include('rainscripts/rss.php');
+require_once('raintpl/raintpl.php');
+require_once('rainscripts/rss.php');
 ?>

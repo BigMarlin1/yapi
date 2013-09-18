@@ -1,7 +1,7 @@
 <?php
 if (isset($_GET['type']) && isset($_GET['subject']) && isset($_GET['identifier']) && isset($_GET['group']))
 {
-	require_once('config.php');
+	require_once('../config.php');
 	require_once(PHP_DIR.'backend/nzb.php');
 	$nzb = new nzb;
 	$subject = substr($_GET['subject'], 0, 150);

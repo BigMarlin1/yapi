@@ -1,7 +1,9 @@
 <?
-/* Generate an NZB */
-require_once('../config.php');
-require_once(PHP_DIR.'/backend/db.php');
+require_once(PHP_DIR.'backend/db.php');
+
+/*
+ * Class for generating NZB files.
+ */
 
 class nzb
 {

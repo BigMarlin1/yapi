@@ -1,7 +1,10 @@
 <?php
-require_once('config.php');
-require_once(PHP_DIR.'/backend/db.php');
-require_once(PHP_DIR.'/backend/Net_NNTP/NNTP/Client.php');
+require_once(PHP_DIR.'backend/db.php');
+require_once(PHP_DIR.'backend/Net_NNTP/NNTP/Client.php');
+
+/*
+ * Class for connecting to the usenet, retrieving articles and article headers, decoding yEnc articles, decompressing article headers.
+ */
 
 class Nntp extends Net_NNTP_Client
 {

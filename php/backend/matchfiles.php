@@ -1,4 +1,7 @@
 <?php
+/*
+ * Class using regex to extract names/unique parts from a usenet article subject.
+ */
 
 class matchfiles
 {

@@ -39,41 +39,41 @@ do
 
 	cd $cli_dir
 	echo "\033[31mGoing to download headers for the primary NNTP server.\n\033[33m"
-	$php update_headers.php all false
+	$php $cli_dir/headers/update_headers.php all false
 	if [ $alternate = true ]
 	then
 		echo "\033[31m\nGoing to download headers for the secondary NNTP server.\n\033[33m"
-		$php update_headers.php all true
+		$php $cli_dir/headers/update_headers.php all true
 	fi
 	if [ $nfo = true ]
 	then
 		echo "\033[31m\nGoing to match NFOs for the primary NNTP server.\n\033[33m"
-		$php match_nfos.php true false
+		$php $cli_dir/postproc/match_nfos.php true false
 	fi
 	if [ $password = true ]
 	then
 		echo "\033[31m\nGoing to check for passwords for the primary NNTP server.\n\033[33m"
-		$php check_passwords.php true false
+		$php $cli_dir/postproc/check_passwords.php true false
 	fi
 
 	if [ $backfill = true ]
 	then
 		echo "\033[31m\nGoing to backfill headers using the primary NNTP server.\n\033[33m"
-		$php backfill_headers.php all $bqty false
+		$php $cli_dir/headers/backfill_headers.php all $bqty false
 		if [ $alternate = true ]
 		then
 			echo "\033[31m\nGoing to backfill headers using the secondary NNTP server.\n\033[33m"
-			$php backfill_headers.php all $bqty true
+			$php $cli_dir/headers/backfill_headers.php all $bqty true
 		fi
 		if [ $nfo = true ]
 		then
 			echo "\033[31m\nGoing to match NFOs for the primary NNTP server.\n\033[33m"
-			$php match_nfos.php true false
+			$php $cli_dir/postproc/match_nfos.php true false
 		fi
 		if [ $password = true ]
 		then
 			echo "\033[31m\nGoing to check for passwords for the primary NNTP server.\n\033[33m"
-			$php check_passwords.php true false
+			$php $cli_dir/postproc/check_passwords.php true false
 		fi
 	fi
 
@@ -82,12 +82,12 @@ do
 		if [ $nfo = true ]
 		then
 			echo "\033[31m\nGoing to try to fetch missed NFOs using the secondady NNTP server.\n\033[33m"
-			$php match_nfos.php true true
+			$php $cli_dir/postproc/match_nfos.php true true
 			fi
 		if [ $password = true ]
 		then
 			echo "\033[31m\nGoing to try to check missed passworded files using the secondary NNTP server.\n\033[33m"
-			$php check_passwords.php true true
+			$php $cli_dir/postproc/check_passwords.php true true
 		fi
 	fi
 

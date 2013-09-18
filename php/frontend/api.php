@@ -3,7 +3,7 @@
  * No categories/genres/registration for example.
  */
 
-include('raintpl/raintpl.php');
+require_once('raintpl/raintpl.php');
 
 // API functions.
 if (isset($_GET['t']))
@@ -23,19 +23,19 @@ elseif (isset($_GET['h']))
 {
 	?>
 	<html>
-	<?php include('rainscripts/head.php'); ?>
+	<?php require_once('rainscripts/head.php'); ?>
 	<body>
 		<div id="wrapper">
-			<?php 
-				include('rainscripts/header.php'); 
-				include('rainscripts/nav.php');
-			?>
+		<?php 
+			require_once('rainscripts/header.php'); 
+			require_once('rainscripts/nav.php');
+		?>
 			<div id="content">
 				<div id="innercontent">
-					<?php include('rainscripts/apihelp.php'); ?>
+					<?php require_once('rainscripts/apihelp.php'); ?>
 				</div>
 			</div>
-			<?php include('rainscripts/footer.php'); ?>
+			<?php require_once('rainscripts/footer.php'); ?>
 		</div>
 	</body>
 	</html>

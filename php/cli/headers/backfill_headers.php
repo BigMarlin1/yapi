@@ -1,7 +1,4 @@
 <?php
-require_once('../config.php');
-require_once(PHP_DIR.'/backend/headers.php');
-
 $e = "Downloads old article headers.\n"
 		."Valid first argument: alt.binaries.groupname for 1 group or all for all groups\n"
 		."Valid second argument: the amount of articles to download.\n"
@@ -15,6 +12,9 @@ if(strlen($argv[1]) < 2 || !is_numeric($argv[2]))
 	exit($e);
 if (strlen($argv[3]) < 4)
 	exit($e);
+
+require_once(dirname(__FILE__).'/../../config.php');
+require_once(PHP_DIR.'backend/headers.php');
 
 $a = false;
 if ($argv[3] == 'true')

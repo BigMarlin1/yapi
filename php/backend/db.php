@@ -1,7 +1,8 @@
 <?php
-
-/* Class for handling connection to MySQL database using PDO.
- * Exceptions are caught and displayed to the user. */
+/*
+ * Class for handling connection to MySQL database using PDO.
+ * Exceptions are caught and displayed to the user.
+ */
 
 class DB
 {

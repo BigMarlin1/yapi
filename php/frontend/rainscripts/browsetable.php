@@ -1,6 +1,4 @@
 <?php
-require_once('../config.php');
-
 // Check if the group has the table created.
 require_once(PHP_DIR.'backend/groups.php');
 $groups = new groups;

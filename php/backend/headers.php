@@ -1,12 +1,11 @@
 <?php
-require_once('config.php');
-require_once(PHP_DIR.'/backend/db.php');
-require_once(PHP_DIR.'/backend/groups.php');
-require_once(PHP_DIR.'/backend/matchfiles.php');
-require_once(PHP_DIR.'/backend/nntp.php');
+require_once(PHP_DIR.'backend/db.php');
+require_once(PHP_DIR.'backend/groups.php');
+require_once(PHP_DIR.'backend/matchfiles.php');
+require_once(PHP_DIR.'backend/nntp.php');
 
 /*
- * Downloads usenet article headers, stores them in the MySQL database.
+ * Class for downloading usenet article headers, stores them in the MySQL database.
  */
 
 Class headers

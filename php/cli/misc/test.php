@@ -1,7 +1,7 @@
 <?php
-require_once('../config.php');
-require_once(PHP_DIR.'/backend/db.php');
-require_once(PHP_DIR.'/backend/nntp.php');
+require_once(dirname(__FILE__).'/../../config.php');
+require_once(PHP_DIR.'backend/db.php');
+require_once(PHP_DIR.'backend/nntp.php');
 
 // Test the DB connection.
 echo 'Testing the database connection:\n';

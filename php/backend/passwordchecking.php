@@ -1,5 +1,4 @@
 <?php
-require_once('../config.php');
 require_once(PHP_DIR.'backend/db.php');
 require_once(PHP_DIR.'backend/groups.php');
 require_once(PHP_DIR.'backend/nfo.php');
@@ -7,18 +6,19 @@ require_once(PHP_DIR.'backend/nntp.php');
 require_once(PHP_DIR.'backend/rarinfo/archiveinfo.php');
 
 /*
- * Looks through subjects for compressed/encrypted zips/rars.
+ * Class for looking through subjects for compressed/encrypted zips/rars.
  */
+
 Class PChecking
 {
-	const PC_ENCRYPTED = -60; // Encrypted file.
-	const PC_PASSWORDED = -50; // Passworded file.
-	const PC_UNCHECKED = 0; // File has never been checked.
-	const PC_FALSE = 1; // No passwords/encryption.
-	const PC_UNKOWN = 2; // Probably no password/encryption.
-	const PC_POSSIBLE = 10; // Possibly passworded or encrypted.
-	const PC_FAILED = 20; // Failed to download yEnc article. Retry later with alternate provider.
-	const PC_DISABLED = 30; // Failed to download yEnc article with the alternate provider.
+	const PC_ENCRYPTED = -60;	// Encrypted file.
+	const PC_PASSWORDED = -50;	// Passworded file.
+	const PC_UNCHECKED = 0;		// File has never been checked.
+	const PC_FALSE = 1;			// No passwords/encryption.
+	const PC_UNKOWN = 2;		// Probably no password/encryption.
+	const PC_POSSIBLE = 10;		// Possibly passworded or encrypted.
+	const PC_FAILED = 20;		// Failed to download yEnc article. Retry later with alternate provider.
+	const PC_DISABLED = 30;		// Failed to download yEnc article with the alternate provider.
 
 	function PChecking($echo=false)
 	{

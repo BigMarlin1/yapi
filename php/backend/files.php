@@ -83,9 +83,8 @@ Class files
 			if ($limit != '')
 				$maxperpage = $limit;
 
-			$max = $maxperpage;
-			if ($count > 25)
-				$max = ($maxperpage / 2);
+			// Limit the limit on the subqueries depending on the amount of groups to speed up the query.
+			$max = ($maxperpage * 3) / $count;
 
 			foreach ($tids as $tid)
 			{
@@ -130,9 +129,17 @@ Class files
 					}
 				}
 			}
-			$result = $db->query('SELECT files.*, groups.name, groups.id AS groupid FROM ('.$fstr.') AS files INNER JOIN groups ON groups.id = groupid ORDER BY utime DESC LIMIT '.$maxperpage, true);
-			$db = null;
-			return $result;
+			if ($fstr == '')
+			{
+				$db = null;
+				return false;
+			}
+			else
+			{
+				$result = $db->query('SELECT files.*, groups.name, groups.id AS groupid FROM ('.$fstr.') AS files INNER JOIN groups ON groups.id = groupid ORDER BY utime DESC LIMIT '.$maxperpage, true);
+				$db = null;
+				return $result;
+			}
 		}
 		else
 		{
@@ -224,9 +231,9 @@ Class files
 			$count = count($tids);
 			$fstr = '';
 			$i = 1;
-			$max = MAX_PERPAGE;
-			if ($count > 25)
-				$max = (MAX_PERPAGE / 2);
+
+			// Limit the limit on the subqueries depending on the amount of groups to speed up the query.
+			$max = (MAX_PERPAGE * 3) / $count;
 
 			foreach ($tids as $tid)
 			{
@@ -271,9 +278,17 @@ Class files
 					}
 				}
 			}
-			$result = $db->query('SELECT files.*, groups.name, groups.id AS groupid FROM ('.$fstr.') AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT '.MAX_PERPAGE, true);
-			$db = null;
-			return $result;
+			if ($fstr == '')
+			{
+				$db = null;
+				return false;
+			}
+			else
+			{
+				$result = $db->query('SELECT files.*, groups.name, groups.id AS groupid FROM ('.$fstr.') AS files INNER JOIN groups ON groups.id = files.groupid ORDER BY utime DESC LIMIT '.MAX_PERPAGE);
+				$db = null;
+				return $result;
+			}
 		}
 		else
 		{
@@ -436,9 +451,9 @@ Class files
 			$count = count($tids);
 			$fstr = '';
 			$i = 1;
-			$max = $limit;
-			if ($count > 25)
-				$max = ($limit / 2);
+			
+			// Limit the limit on the subqueries depending on the amount of groups to speed up the query.
+			$max = ($limit * 3) / $count;
 
 			foreach ($tids as $tid)
 			{

@@ -39,7 +39,7 @@ Class headers
 		}
 	}
 
-	// Check if tables exist, start backfilling/updating functions  depending on args.
+	// Check if tables exist, start backfilling/updating functions depending on args.
 	public function start($groups, $type, $headers)
 	{
 		if (count($groups) > 0)
@@ -500,7 +500,7 @@ Class headers
 						else
 							$pquery .= ',(?,?,?,?,?)';
 
-						$pvalues = array_merge($pvalues, array_values(array($insprep['part'], $fileid, $insprep['messid'],/* $insprep['anumber'],*/ $insprep['psize'], $provider)));
+						$pvalues = array_merge($pvalues, array_values(array($insprep['part'], $fileid, $insprep['messid'], $insprep['psize'], $provider)));
 					}
 
 					$ipstmt = $db->Prepare($pquery);

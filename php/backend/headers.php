@@ -18,7 +18,8 @@ Class headers
 		$this->newgroupfetch = NEW_HEADERS;
 		$this->loopsize = QTY_HEADERS;
 		$this->message = array();
-		$this->alternate = false;
+		$this->firstart = $this->firstartdate = 0;
+		$this->alternate = $this->newgroup = false;
 	}
 
 	public function main($group, $type, $headers='', $alternate=false)
@@ -106,11 +107,11 @@ Class headers
 		if ($this->alternate === true)
 			$lastart = $group['lastarta'];
 
-		$new = false;
 		// New group.
 		if($lastart == 0)
 		{
-			$new = true;
+			$this->newgroup = true;
+			$this->firstart = $this->firstartdate = 0;
 			$oldest = $gover['last'] - $this->newgroupfetch;
 			if ($oldest <= $gover['first'])
 				$oldest = $gover['first'];
@@ -141,25 +142,23 @@ Class headers
 
 		$ret = $this->loopforward($oldest, $newest, $newest-$oldest, $group);
 
-		$firstart = $group['firstart'];
 		$provider = 0;
 		$cols = '';
 		if ($this->alternate == true)
 		{
-			$firstart = $group['firstarta'];
 			$provider = 1;
 			$cols = 'a';
 		}
 
 		// Update oldest time/article#.
-		if ($new === true || $firstart == 0)
+		if ($this->newgroup === true)
 		{
-			$db = new DB;
-			$row = $db->queryOneRow(sprintf('SELECT f.utime, p.anumber FROM files_%d f INNER JOIN parts_%d p ON p.fileid = f.id WHERE p.provider = %d ORDER BY f.utime ASC LIMIT 1', $group['id'], $group['id'], $provider));
-			if ($row != false)
-				$db->queryExec(sprintf('UPDATE groups SET firstdate%s = %d, firstart%s = %d WHERE id = %d', $cols, $row['utime'], $cols, $row['anumber'], $group['id']));
-
-			$db = null;
+			if ($this->firstart > 0 && $this->firstartdate > 0)
+			{
+				$db = new DB;
+				$db->queryExec(sprintf('UPDATE groups SET firstdate%s = %d, firstart%s = %d WHERE id = %d', $cols, strtotime($this->firstartdate), $cols, $this->firstart, $group['id']));
+				$db = null;
+			}
 		}
 		return $ret;
 	}
@@ -231,6 +230,7 @@ Class headers
 
 		$nntp->doQuit();
 
+		$this->firstart = $this->firstartdate = 0;
 		$firstart = $group['firstart'];
 		if ($this->alternate === true)
 			$firstart = $group['firstarta'];
@@ -273,13 +273,13 @@ Class headers
 			$cols = 'a';
 		}
 
-		// Update oldest time/article# in the groups table.
-		$db = new DB;
-		$row = $db->queryOneRow(sprintf('SELECT p.anumber, f.utime FROM parts_%d p INNER JOIN files_%d f ON f.id = p.fileid  WHERE provider = %d ORDER BY anumber ASC LIMIT 1', $group['id'], $group['id'], $provider));
-		if ($row != false)
-			$db->queryExec(sprintf('UPDATE groups SET firstdate%s = %d, firstart%s = %d WHERE id = %d', $cols, $row['utime'], $cols, $row['anumber'], $group['id']));
-
-		$db = null;
+		if ($this->firstart > 0 && $this->firstartdate > 0)
+		{
+			// Update oldest time/article# in the groups table.
+			$db = new DB;
+			$db->queryExec(sprintf('UPDATE groups SET firstdate%s = %d, firstart%s = %d WHERE id = %d', $cols, strtotime($this->firstartdate), $cols, $this->firstart, $group['id']));
+			$db = null;
+		}
 		return $ret;
 	}
 
@@ -409,9 +409,29 @@ Class headers
 				else
 					$mnumber = $msg['Number'];
 
-				// Gt the newest date each time for going forward.
 				if ($type == 'forward')
+				{
+					// Get the newest date each time for going forward.
 					$newdate = $msg['Date'];
+					if ($this->newgroup === true)
+					{
+						// For new groups, get the oldest date / article number.
+						if ($this->firstart == 0 || $this->firstart > $msg['Number'])
+						{
+							$this->firstart = $msg['Number'];
+							$this->firstartdate = $msg['Date'];
+						}
+					}
+				}
+				else
+				{
+					// Get the oldest date / article number for backfill.
+					if ($this->firstart == 0 || $this->firstart > $msg['Number'])
+					{
+						$this->firstart = $msg['Number'];
+						$this->firstartdate = $msg['Date'];
+					}
+				}
 
 				if (isset($msg['Bytes']))
 					$bytes = $msg['Bytes'];
@@ -444,7 +464,7 @@ Class headers
 				}
 
 				// Set up info for the parts_groupid table.
-				$this->message[$subject]['part'][(int)$matches[2]] = array('messid' => substr($msg['Message-ID'],1,-1), 'anumber' => $msg['Number'], 'psize' => $bytes, 'part' => (int)$matches[2]);
+				$this->message[$subject]['part'][(int)$matches[2]] = array('messid' => substr($msg['Message-ID'],1,-1), 'psize' => $bytes, 'part' => (int)$matches[2]);
 			}
 
 			if (count($msgsreceived) > 0)
@@ -467,20 +487,20 @@ Class headers
 
 					// Loop parts.
 					$db->beginTransaction();
-					$pquery = 'INSERT IGNORE INTO '.$group['ptname'].' (part, fileid, messid, anumber, psize, provider) ';
+					$pquery = 'INSERT IGNORE INTO '.$group['ptname'].' (part, fileid, messid, psize, provider) ';
 					$first = false;
 					$pvalues = array();
 					foreach ($file['part'] as $insprep)
 					{
 						if ($first === false)
 						{
-							$pquery .= ' VALUES(?,?,?,?,?,?)';
+							$pquery .= ' VALUES(?,?,?,?,?)';
 							$first = true;
 						}
 						else
-							$pquery .= ',(?,?,?,?,?,?)';
+							$pquery .= ',(?,?,?,?,?)';
 
-						$pvalues = array_merge($pvalues, array_values(array($insprep['part'], $fileid, $insprep['messid'], $insprep['anumber'], $insprep['psize'], $provider)));
+						$pvalues = array_merge($pvalues, array_values(array($insprep['part'], $fileid, $insprep['messid'],/* $insprep['anumber'],*/ $insprep['psize'], $provider)));
 					}
 
 					$ipstmt = $db->Prepare($pquery);

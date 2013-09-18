@@ -97,15 +97,12 @@ CREATE TABLE parts
 	fileid INT UNSIGNED NOT NULL DEFAULT 0,
 	/* the message-id */
 	messid VARCHAR(255) NOT NULL DEFAULT '',
-	/* article number */
-	anumber BIGINT UNSIGNED NOT NULL DEFAULT 0,
 	/* the size in bytes of the part */
 	psize MEDIUMINT UNSIGNED NOT NULL DEFAULT 0,
 	/* the nntp provider */
 	provider TINYINT(1) UNSIGNED NOT NULL DEFAULT 0,
 	PRIMARY KEY (id),
 	KEY fileid (fileid),
-	KEY anumber (anumber),
 	UNIQUE messid (messid)
 ) ENGINE=INNODB ROW_FORMAT=COMPRESSED KEY_BLOCK_SIZE=8 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci AUTO_INCREMENT=1;
 
